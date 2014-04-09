@@ -34,7 +34,7 @@ public class WXEntryActivity extends WechatHandlerActivity {
 	 * <p>
 	 * 此处用来接收从微信发送过来的消息，比方说本demo在wechatpage里面分享
 	 * 应用时可以不分享应用文件，而分享一段应用的自定义信息。接受方的微信
-	 * 客户端会通过这个方法，将这个信息发送回接收方手机上的本demo中，当作
+	 * 客户端会通过这个方法将这个信息发送回接收方手机上的本demo中，当作
 	 * 回调。
 	 * <p>
 	 * 本Demo只是将信息展示出来，但你可做点其他的事情，而不仅仅只是Toast
