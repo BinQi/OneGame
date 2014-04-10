@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -40,7 +42,6 @@ import cn.sharesdk.framework.utils.UIHandler;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
 
-import com.sungy.onegame.activity.DetailActivity;
 import com.sungy.onegame.activity.FavoritesFragment;
 import com.sungy.onegame.activity.FeedBackActivity;
 import com.sungy.onegame.activity.ResourceFragment;
@@ -59,7 +60,7 @@ public class LeftFragment extends Fragment implements Callback {
 	public final static String[] plats = { "新浪微博登录", "QQ登录" };
 	private Platform qzone;
 	private Platform weibo;
-	private Context mContext ;
+	private Context mContext;
 	private boolean isDefaultLogin = false;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,45 +80,54 @@ public class LeftFragment extends Fragment implements Callback {
 			public void onClick(View v) {
 				if (userLoginTv.getText().equals("退出登录")) {
 					new AlertDialog.Builder(getActivity())
-					.setTitle("提示")
-					.setMessage("您确定要注销？")
-					.setNegativeButton("取消",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-								}
-							})
-					.setPositiveButton("确定",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int whichButton) {
-									String[] infos = readLoginInfo();
-									clearLoginInfo();
-									clearGlobal();
-									String plat = infos[3];
-									if(plat.equals("qq")){
-										qzone = ShareSDK.getPlatform(getActivity(), QZone.NAME);
-										qzone.SSOSetting(true);
-										qzone.removeAccount();
-									}else if(plat.equals("weibo")){
-										weibo = ShareSDK.getPlatform(getActivity(), SinaWeibo.NAME);
-										weibo.SSOSetting(true);
-										weibo.removeAccount();
-									}
-									userNameTv.setText("name");
-									userLoginTv.setText("登录");
-									userImage.setImageResource(R.drawable.defaultimage);
-									ToastUtils.showDefaultToast(getActivity(), "注销成功", Toast.LENGTH_SHORT);
-									isDefaultLogin = false;
-								}
-							}).show();
-				}else{
+							.setTitle("提示")
+							.setMessage("您确定要注销？")
+							.setNegativeButton("取消",
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+										}
+									})
+							.setPositiveButton("确定",
+									new DialogInterface.OnClickListener() {
+										public void onClick(
+												DialogInterface dialog,
+												int whichButton) {
+											String[] infos = readLoginInfo();
+											clearLoginInfo();
+											clearGlobal();
+											String plat = infos[3];
+											if (plat.equals("qq")) {
+												qzone = ShareSDK.getPlatform(
+														getActivity(),
+														QZone.NAME);
+												qzone.SSOSetting(true);
+												qzone.removeAccount();
+											} else if (plat.equals("weibo")) {
+												weibo = ShareSDK.getPlatform(
+														getActivity(),
+														SinaWeibo.NAME);
+												weibo.SSOSetting(true);
+												weibo.removeAccount();
+											}
+											userNameTv.setText("name");
+											userLoginTv.setText("登录");
+											userImage
+													.setImageResource(R.drawable.defaultimage);
+											ToastUtils.showDefaultToast(
+													getActivity(), "注销成功",
+													Toast.LENGTH_SHORT);
+											isDefaultLogin = false;
+										}
+									}).show();
+				} else {
 					AlertDialog.Builder mBuilder = new AlertDialog.Builder(
 							getActivity());
 					mBuilder.setTitle("选择登录平台").setItems(plats,
 							new DialogInterface.OnClickListener() {
-	
+
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
@@ -131,7 +141,7 @@ public class LeftFragment extends Fragment implements Callback {
 									}
 								}
 							});
-					mBuilder.show();				
+					mBuilder.show();
 				}
 			}
 		});
@@ -169,9 +179,9 @@ public class LeftFragment extends Fragment implements Callback {
 		oneFavoritesPage.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {
-				//检查是否登录
-				if(!Global.checkLogin(getActivity())){
-					return ;
+				// 检查是否登录
+				if (!Global.checkLogin(getActivity())) {
+					return;
 				}
 				FragmentTransaction ft = getActivity()
 						.getSupportFragmentManager().beginTransaction();
@@ -186,9 +196,9 @@ public class LeftFragment extends Fragment implements Callback {
 		oneFeedbackPage.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {
-				//检查是否登录
-				if(!Global.checkLogin(getActivity())){
-					return ;
+				// 检查是否登录
+				if (!Global.checkLogin(getActivity())) {
+					return;
 				}
 				startActivity(new Intent(getActivity(), FeedBackActivity.class));
 			}
@@ -201,40 +211,40 @@ public class LeftFragment extends Fragment implements Callback {
 
 		super.onActivityCreated(savedInstanceState);
 		ShareSDK.initSDK(getActivity());
-		
+
 		mContext = getActivity();
-		
-		//初始化登录信息
+
+		// 初始化登录信息
 		initLoginInfo();
 	}
-	
-	//初始化登录信息
-	private void initLoginInfo(){
+
+	// 初始化登录信息
+	private void initLoginInfo() {
 		String username = "";
 		String userimage = "";
 		String userid = "";
 		String plat = "";
 		String thirdid = "";
 		String[] infos = null;
-		//写入操作,并授权
+		// 写入操作,并授权
 		infos = readLoginInfo();
-		if(infos != null){
+		if (infos != null) {
 			isDefaultLogin = true;
-			
+
 			username = infos[0];
 			userimage = infos[1];
 			userid = infos[2];
 			plat = infos[3];
 			thirdid = infos[4];
 			afterLogin(username, plat, thirdid, userimage);
-			if(plat.equals("qq")){
+			if (plat.equals("qq")) {
 				qzone = ShareSDK.getPlatform(getActivity(), QZone.NAME);
 				qzone.SSOSetting(true);
-//				qzone.authorize();
-			}else if(plat.equals("weibo")){
+				// qzone.authorize();
+			} else if (plat.equals("weibo")) {
 				weibo = ShareSDK.getPlatform(getActivity(), SinaWeibo.NAME);
 				weibo.SSOSetting(true);
-//				weibo.authorize();
+				// weibo.authorize();
 			}
 		}
 	}
@@ -282,29 +292,36 @@ public class LeftFragment extends Fragment implements Callback {
 		}
 		return false;
 	}
-	
-	//提示登录成功
-	private void tipLoginSuccess(String name){
+
+	// 提示登录成功
+	private void tipLoginSuccess(String name) {
 		Context context = mContext;
-		//是否是其他页面登录
-		if(isFromOther){
+		// 是否是其他页面登录
+		if (isFromOther) {
 			context = otherContext;
 		}
-		if(!isDefaultLogin){
-		new AlertDialog.Builder(context)
-		.setTitle("OneGame")
-		.setMessage("欢迎来到OneGame,"+name+"!")
-		.setPositiveButton("确定",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,
-							int whichButton) {
-					}
-				}).show();
+		if (!isDefaultLogin) {
+			new AlertDialog.Builder(context)
+					.setTitle("OneGame")
+					.setMessage("欢迎来到OneGame," + name + "!")
+					.setPositiveButton("确定",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+								}
+							}).show();
 		}
 		setIsFromOther(false);
 	}
 
+
+
+	// 接入微博
 	public void toWeibo() {
+		if (!HttpUtils.isNetworkConnected(getActivity())) {
+			ToastUtils.showCenterToast(getActivity(), "请检查网络状态", Toast.LENGTH_SHORT);
+			return;
+		}
 		weibo = ShareSDK.getPlatform(getActivity(), SinaWeibo.NAME);
 		weibo.SSOSetting(true);
 		if (userLoginTv.getText().equals("切换用户")) {
@@ -321,7 +338,7 @@ public class LeftFragment extends Fragment implements Callback {
 			public void onComplete(Platform arg0, int arg1,
 					HashMap<String, Object> arg2) {
 				final String name = arg0.getDb().getUserName();
-				final String userId=arg0.getDb().getUserId();
+				final String userId = arg0.getDb().getUserId();
 				final String iconUrl = arg0.getDb().getUserIcon();
 
 				afterLogin(name, "weibo", userId, iconUrl);
@@ -335,7 +352,12 @@ public class LeftFragment extends Fragment implements Callback {
 		weibo.authorize();
 	}
 
+	// 接入QQ
 	public void toQQ() {
+		if (!HttpUtils.isNetworkConnected(getActivity())) {
+			ToastUtils.showCenterToast(getActivity(), "请检查网络状态", Toast.LENGTH_SHORT);
+			return;
+		}
 		qzone = ShareSDK.getPlatform(getActivity(), QZone.NAME);
 		qzone.SSOSetting(true);
 		if (userLoginTv.getText().equals("切换用户")) {
@@ -352,9 +374,9 @@ public class LeftFragment extends Fragment implements Callback {
 			public void onComplete(Platform arg0, int arg1,
 					HashMap<String, Object> arg2) {
 				final String name = arg0.getDb().getUserName();
-				final String userId=arg0.getDb().getUserId();
+				final String userId = arg0.getDb().getUserId();
 				final String iconUrl = arg0.getDb().getUserIcon();
-				
+
 				afterLogin(name, "qq", userId, iconUrl);
 			}
 
@@ -365,98 +387,102 @@ public class LeftFragment extends Fragment implements Callback {
 		});
 		qzone.authorize();
 	}
-	
-	//写入全局数据
-	public void write2Global(String user_id,String name,String iconUrl,boolean isLogin){	
+
+	// 写入全局数据
+	public void write2Global(String user_id, String name, String iconUrl,
+			boolean isLogin) {
 		Global.setUserId(user_id);
 		Global.setUserNmae(name);
 		Global.setUserImage(iconUrl);
 		Global.setLogin(isLogin);
 	}
-	
-	//消除全局数据
-	public void clearGlobal(){	
+
+	// 消除全局数据
+	public void clearGlobal() {
 		Global.setUserId("");
 		Global.setUserNmae("");
 		Global.setUserImage("");
 		Global.setLogin(false);
 	}
-	
-	
-	//获取登录信息
-	private String[] readLoginInfo(){
-		//获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式  
-        SharedPreferences sp = getActivity().getApplicationContext().getSharedPreferences("onegameLoginInfo",Context.MODE_WORLD_READABLE);
-        if(sp.getString("username", "").equals("")){
-        	return null;
-        }else{
-        	String[] infos = new String[5];
-        	infos[0] = sp.getString("username", "");
-        	infos[1] = sp.getString("userimage", "");
-        	infos[2] = sp.getString("userid", "");
-        	infos[3] = sp.getString("plat", "");
-        	infos[4] = sp.getString("thirdid", "");
-        	return infos;
-        }
+
+	// 获取登录信息
+	private String[] readLoginInfo() {
+		// 获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式
+		SharedPreferences sp = getActivity().getApplicationContext()
+				.getSharedPreferences("onegameLoginInfo",
+						Context.MODE_WORLD_READABLE);
+		if (sp.getString("username", "").equals("")) {
+			return null;
+		} else {
+			String[] infos = new String[5];
+			infos[0] = sp.getString("username", "");
+			infos[1] = sp.getString("userimage", "");
+			infos[2] = sp.getString("userid", "");
+			infos[3] = sp.getString("plat", "");
+			infos[4] = sp.getString("thirdid", "");
+			return infos;
+		}
 	}
-	
-	//写入登录信息
-	private void writeLoginInfo(String username ,String userimage,String userid,String plat,String thirdid){
-		//获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式  
-        SharedPreferences sp = getActivity().getApplicationContext().getSharedPreferences("onegameLoginInfo",Context.MODE_WORLD_WRITEABLE);
-        SharedPreferences.Editor edit = sp.edit();  
-        edit.putString("username", username);  
-        edit.putString("userimage", userimage);  
-        edit.putString("userid", userid);  
-        edit.putString("plat", plat);  
-        edit.putString("thirdid", thirdid);  
-        //提交  
-        edit.commit();  
+
+	// 写入登录信息
+	private void writeLoginInfo(String username, String userimage,
+			String userid, String plat, String thirdid) {
+		// 获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式
+		SharedPreferences sp = getActivity().getApplicationContext()
+				.getSharedPreferences("onegameLoginInfo",
+						Context.MODE_WORLD_WRITEABLE);
+		SharedPreferences.Editor edit = sp.edit();
+		edit.putString("username", username);
+		edit.putString("userimage", userimage);
+		edit.putString("userid", userid);
+		edit.putString("plat", plat);
+		edit.putString("thirdid", thirdid);
+		// 提交
+		edit.commit();
 	}
-	
-	//消除登录信息
-	private void clearLoginInfo(){
-		//获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式  
-        SharedPreferences sp = getActivity().getApplicationContext().getSharedPreferences("onegameLoginInfo",Context.MODE_WORLD_WRITEABLE);
-        SharedPreferences.Editor edit = sp.edit();  
-        edit.putString("username", "");  
-        edit.putString("userimage", "");  
-        edit.putString("userid", "");  
-        edit.putString("plat", "");  
-        edit.putString("thirdid", "");  
-        //提交  
-        edit.commit();  
+
+	// 消除登录信息
+	private void clearLoginInfo() {
+		// 获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式
+		SharedPreferences sp = getActivity().getApplicationContext()
+				.getSharedPreferences("onegameLoginInfo",
+						Context.MODE_WORLD_WRITEABLE);
+		SharedPreferences.Editor edit = sp.edit();
+		edit.putString("username", "");
+		edit.putString("userimage", "");
+		edit.putString("userid", "");
+		edit.putString("plat", "");
+		edit.putString("thirdid", "");
+		// 提交
+		edit.commit();
 	}
-	
-	//登录后的操作
-	private void afterLogin(final String name,final String plat,final String thirdId,final String iconUrl){
+
+	// 登录后的操作
+	private void afterLogin(final String name, final String plat,
+			final String thirdId, final String iconUrl) {
 		new Thread() {
 			public void run() {
 				List<NameValuePair> params = new ArrayList<NameValuePair>();
-				params.add(new BasicNameValuePair("user_name",
-						name));
-				params.add(new BasicNameValuePair("third_plat",
-						plat));
-				params.add(new BasicNameValuePair("third_id",
-						thirdId));
-				params.add(new BasicNameValuePair("user_image",
-						iconUrl));
+				params.add(new BasicNameValuePair("user_name", name));
+				params.add(new BasicNameValuePair("third_plat", plat));
+				params.add(new BasicNameValuePair("third_id", thirdId));
+				params.add(new BasicNameValuePair("user_image", iconUrl));
 				String str = HttpUtils.doPost(Global.USER_THIRDLOGIN, params);
-				
-				//写入全局数据
+
+				// 写入全局数据
 				JSONObject json;
 				String user_id = "";
 				try {
 					json = new JSONObject(str);
-					user_id = json.getString( "user_id" );
-					write2Global(user_id,name,iconUrl,true);
-					//写入sharepreference
-					writeLoginInfo(name, iconUrl, user_id, plat,thirdId);
+					user_id = json.getString("user_id");
+					write2Global(user_id, name, iconUrl, true);
+					// 写入sharepreference
+					writeLoginInfo(name, iconUrl, user_id, plat, thirdId);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 				Bitmap mBitmap = downloadIcon(iconUrl);
 
 				Message msg = new Message();
@@ -468,26 +494,28 @@ public class LeftFragment extends Fragment implements Callback {
 				msg2.what = (plat.equals("qq")) ? QQ_Image : WEIBO_Image;
 				msg2.obj = mBitmap;
 				UIHandler.sendMessage(msg2, LeftFragment.this);
-				
+
 			};
 		}.start();
-		
+
 	}
-	
-	//为其他页面登录所用
+
+	// 为其他页面登录所用
 	public boolean isFromOther = false;
-	public Context otherContext ;
-	//为其他页面登录所用
+	public Context otherContext;
+	// 为其他页面登录所用
 	public Global.LoginListener listener;
-	//设置listner
-	public void setListener(){
-		listener = new LoginListener() {			
+
+	// 设置listner
+	public void setListener() {
+		listener = new LoginListener() {
 			@Override
 			public void clickToQQ(Context context) {
 				setOtherContext(context);
 				setIsFromOther(true);
 				toQQ();
 			}
+
 			@Override
 			public void clickToWeibo(Context context) {
 				setOtherContext(context);
@@ -496,16 +524,16 @@ public class LeftFragment extends Fragment implements Callback {
 			}
 		};
 	}
-	
-	public Global.LoginListener getListner(){
+
+	public Global.LoginListener getListner() {
 		return listener;
 	}
-	
-	public void setOtherContext(Context context){
+
+	public void setOtherContext(Context context) {
 		otherContext = context;
 	}
-	
-	public void setIsFromOther(boolean is){
+
+	public void setIsFromOther(boolean is) {
 		isFromOther = is;
 	}
 }
