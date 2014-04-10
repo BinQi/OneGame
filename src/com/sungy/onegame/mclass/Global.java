@@ -1,5 +1,7 @@
 package com.sungy.onegame.mclass;
 
+import java.util.HashMap;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,7 +54,12 @@ public class Global {
 	private static String userNmae ;		//用户名
 	private static String userImage ;		//用户头像
 	private static boolean isLogin = false;			//是否已登录
-
+	private static HashMap<String, Integer> detailList = new HashMap<String, Integer>();
+	
+	public static HashMap<String, Integer> getDetailList() {
+		return detailList;
+	}
+	
 	public static String getUserId() {
 		return userId;
 	}

@@ -154,7 +154,7 @@ containing a value of this type.
     public static final class id {
         public static final int Spinner=0x7f090011;
         public static final int abstractt=0x7f090027;
-        public static final int action_settings=0x7f09003b;
+        public static final int action_settings=0x7f09003d;
         public static final int advice=0x7f090013;
         public static final int back=0x7f09000e;
         public static final int center_frame=0x7f090015;
@@ -182,6 +182,7 @@ containing a value of this type.
         public static final int fcancel=0x7f090020;
         public static final int fdelete=0x7f09001f;
         public static final int fedit=0x7f09001e;
+        public static final int fprogressBar=0x7f09003b;
         public static final int gallery=0x7f090003;
         public static final int image=0x7f090026;
         public static final int iv_left=0x7f090033;
@@ -200,8 +201,9 @@ containing a value of this type.
         public static final int praise=0x7f090024;
         public static final int praiseNo=0x7f090025;
         public static final int problem=0x7f090012;
+        public static final int progress_toast_layout=0x7f09003a;
         public static final int qqLogin=0x7f090036;
-        public static final int resource_left=0x7f09003a;
+        public static final int resource_left=0x7f09003c;
         public static final int slidingMenu=0x7f090014;
         public static final int switch1=0x7f09001c;
         public static final int title=0x7f09000f;
@@ -229,10 +231,11 @@ containing a value of this type.
         public static final int list=0x7f03000c;
         public static final int login=0x7f03000d;
         public static final int my_toast=0x7f03000e;
-        public static final int resource=0x7f03000f;
-        public static final int share_dialog=0x7f030010;
-        public static final int splash=0x7f030011;
-        public static final int title=0x7f030012;
+        public static final int progressbar_toast=0x7f03000f;
+        public static final int resource=0x7f030010;
+        public static final int share_dialog=0x7f030011;
+        public static final int splash=0x7f030012;
+        public static final int title=0x7f030013;
     }
     public static final class menu {
         public static final int detail=0x7f080000;

@@ -1,6 +1,11 @@
 package com.sungy.onegame.activity;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,16 +21,20 @@ import com.sungy.onegame.mclass.*;
 import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -35,6 +44,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.RelativeLayout;
 import android.widget.CheckBox;
@@ -43,20 +53,37 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FavoritesFragment extends Fragment {
+public class FavoritesFragment extends Fragment implements FragmentInterface{
 	static ListView favoritesList;
 	private MyAdapter mAdapter;
 	private Switch switcher;
+	private ProgressBar progressBar;
 	private Button deleteButton, cancelButton;
 	private static RelativeLayout buttonRL;
+	private Toast toast;
 	
 	private final String TAG = "FavoritesFragment";
 	private String userid;
-	private String str;
+	private static boolean editmode = false;
 	
-	private ArrayList<String> list = new ArrayList<String>();
-	private List<NameValuePair> data = new ArrayList<NameValuePair>();
-	private int checkNum;
+	private ArrayList<FavoriteGame> favoriteGame = new ArrayList<FavoriteGame>();
+	private ArrayList<FavoriteGame> list = new ArrayList<FavoriteGame>();
+	//private List<NameValuePair> data = new ArrayList<NameValuePair>();
+	
+	class FavoriteGame {
+		public FavoriteGame(String id, String cid, Date datetime){
+			collect_id = cid;
+			this.id = id;
+			this.datetime = datetime;
+		}
+		public void setUrl(String url){
+			this.url = url;
+		}
+		public String collect_id;
+		public String id;
+		public String url;
+		public Date datetime;
+	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,13 +98,63 @@ public class FavoritesFragment extends Fragment {
 		
 		//userid
 		userid = Global.getUserId();
+		
+		View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.progressbar_toast, null);
+		progressBar = (ProgressBar)toastRoot.findViewById(R.id.fprogressBar);
+		progressBar.setVisibility(View.VISIBLE);
+		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.progress_toast_layout);
+		rl.getBackground().setAlpha(0);
+    	toast = new Toast(getActivity());
+    	toast.setView(toastRoot);
+    	toast.setGravity(Gravity.CENTER, 0, 0);
+    	toast.setDuration(Toast.LENGTH_LONG);
+    	toast.show();
+    	
 		buttonRL = (RelativeLayout)view.findViewById(R.id.fedit);
 		deleteButton = (Button)view.findViewById(R.id.fdelete);
 		cancelButton = (Button)view.findViewById(R.id.fcancel);
 		deleteButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
-				//TODO delete item and refresh
+				NameValuePair pair0, pair1;
+				String gameId, cid;
+				boolean delete_success = true;
+				for(Integer i : mAdapter.getAllSelected()) {
+					gameId = favoriteGame.get(i).id;
+					cid = favoriteGame.get(i).collect_id;
+					pair0 = new BasicNameValuePair("id", cid);
+					pair1 = new BasicNameValuePair("game_id", gameId);
+					List<NameValuePair> data = new ArrayList<NameValuePair>();
+					data.add(pair0);
+					data.add(pair1);
+					String str = HttpUtils.doPost(Global.COLLECT_CANCLECOLLECT, data);
+					//System.out.println(str);
+					try {
+						JSONObject json = new JSONObject(str);
+						String message = json.getString( "message" );
+						if(!message.equals("success"))
+							delete_success = false;
+						Log.e(TAG, "delete Favorite game message: "+message);			
+						
+					} catch (JSONException e) {
+						Log.e(TAG, "deleteFavoriteERROR");
+						e.printStackTrace();
+					}
+				}
+				getGameData();
+				View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.my_toast, null);
+				TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
+				if(delete_success)
+					tv.setText("删除成功！");
+				else
+					tv.setText("删除失败！");
+        		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
+        		rl.getBackground().setAlpha(50);
+		    	Toast mytoast = new Toast(getActivity());
+		    	mytoast.setView(toastRoot);
+		    	mytoast.setGravity(Gravity.CENTER, 0, 0);
+		    	mytoast.setDuration(Toast.LENGTH_SHORT);
+		    	mytoast.show();		
 			}
 		});
 		cancelButton.setOnClickListener(new OnClickListener(){
@@ -116,21 +193,23 @@ public class FavoritesFragment extends Fragment {
 		favoritesList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
-                // 取得ViewHolder对象，这样就省去了通过层层的findViewById去实例化我们需要的cb实例的步骤
-            	ViewHolder holder = (ViewHolder) arg1.getTag();
-                // 改变CheckBox的状态
-                holder.cb.toggle();
-                // 将CheckBox的选中状况记录下来
-                MyAdapter.getIsSelected().put(arg2, holder.cb.isChecked()); 
-                // 调整选定条目
-                if (holder.cb.isChecked() == true) {
-                    checkNum++;
-                } else {
-                    checkNum--;
-                }
-                // 用TextView显示
-               Log.d(TAG, "已选中"+checkNum+"项");              
+            	if(editmode){
+	                // 取得ViewHolder对象，这样就省去了通过层层的findViewById去实例化我们需要的cb实例的步骤
+	            	ViewHolder holder = (ViewHolder) arg1.getTag();
+	                // 改变CheckBox的状态
+	                holder.cb.toggle();
+	                // 将CheckBox的选中状况记录下来
+	                MyAdapter.getIsSelected().put(arg2, holder.cb.isChecked());            
+            	}
+            	else{
+            		String id = favoriteGame.get(arg2).id;
+            		int index = Global.getDetailList().get(id);
+            		Bundle bundle = new Bundle();
+            		bundle.putInt("index", index);
+            		Intent i = new Intent(getActivity(), DetailActivity.class);
+            		i.putExtras(bundle);
+            		startActivity(i);
+            	}
             }
         });
 		return view;
@@ -144,17 +223,11 @@ public class FavoritesFragment extends Fragment {
 		    switch (msg.what) {
 		    case 0:  
                 buttonRL.setVisibility(View.INVISIBLE);
-                for(int i = 0; i<favoritesList.getChildCount(); i++){
-            		ViewHolder viewHolder = (ViewHolder)favoritesList.getChildAt(i).getTag();
-            		viewHolder.cb.setFocusable(false);
-            	}
+                editmode = false;
                 break;
             case 1:
             	buttonRL.setVisibility(View.VISIBLE);
-            	for(int i = 0; i<favoritesList.getChildCount(); i++){
-            		ViewHolder viewHolder = (ViewHolder)favoritesList.getChildAt(i).getTag();
-            		viewHolder.cb.setFocusable(true);
-            	}
+            	editmode = true;
             	break;
             }
 	    }
@@ -167,6 +240,7 @@ public class FavoritesFragment extends Fragment {
 		    super.handleMessage(msg);
 		    switch (msg.what) {
             case 1:  
+            	Collections.sort(list, new MyComparator());
                 update();
                 break;  
             }
@@ -178,35 +252,51 @@ public class FavoritesFragment extends Fragment {
     	Log.d(TAG, "Update");
     	mAdapter.initData();
     	mAdapter.notifyDataSetChanged();
+    	toast.cancel();
     	Log.d(TAG, "Update Completed");
+    }
+    
+    class MyComparator implements Comparator{
+		@Override
+		public int compare(Object a, Object b) {
+			Date d0 = ((FavoriteGame)a).datetime;
+			Date d1 = ((FavoriteGame)b).datetime;
+			if(d0.before(d1))
+				return 1;
+			else if(d0.after(d1))
+				return -1;
+			return 0;
+		}
     }
     
 	private void getGameData()
 	{
 		Log.e(TAG, "getGameData is excuting.");
-		NameValuePair pair0, pair1, pair2;
-		String pageSize = "10", pageNo = "1";		
+		list.clear();
+		favoriteGame.clear();
 		
-		pair0 = new BasicNameValuePair("user_id", userid);
-		pair1 = new BasicNameValuePair("pageSize", pageSize);
-		pair2 = new BasicNameValuePair("pageNo", pageNo);
-		data.clear();
-		data.add(pair0);
-		data.add(pair1);
-		data.add(pair2);
 		
 		//获取收藏列表
 		new Thread(){
 			@Override
 			public void run()
 			{
-				ArrayList<String> favoriteGameId = new ArrayList<String>();
-				NameValuePair pair3;
-				str = HttpUtils.doPost(Global.COLLECT_GETBYUSERID, data);
+				NameValuePair pair0, pair1, pair2;
+				String pageSize = "10", pageNo = "1";		
+				
+				pair0 = new BasicNameValuePair("user_id", userid);
+				pair1 = new BasicNameValuePair("pageSize", pageSize);
+				pair2 = new BasicNameValuePair("pageNo", pageNo);
+				List<NameValuePair> data = new ArrayList<NameValuePair>();
+				data.add(pair0);
+				data.add(pair1);
+				data.add(pair2);
+				
+				String str = HttpUtils.doPost(Global.COLLECT_GETBYUSERID, data);
 				JSONObject json;
 				String message = "";
 				JSONArray listData = null;
-				//System.out.println(str);
+				Log.e(TAG, str);
 				try {
 					json = new JSONObject(str);
 					message = json.getString( "message" );
@@ -214,7 +304,6 @@ public class FavoritesFragment extends Fragment {
 					listData = json.getJSONArray( "listData" );			
 					//Log.d(TAG, "listData: "+json.getString("listData"));
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					Log.e(TAG, "ERROR");
 					e.printStackTrace();
 				}
@@ -222,46 +311,61 @@ public class FavoritesFragment extends Fragment {
 	            	return;
 				for(int i = 0; i<listData.length(); i++)
 				{
-					String temp;
+					String cid, tempid, tempdate;
 					try{
-						temp = listData.getJSONObject(i).getString("game_id");
-						Log.d(TAG, "game_id: "+temp);
-						favoriteGameId.add(temp);
+						cid = listData.getJSONObject(i).getString("id");
+						tempid = listData.getJSONObject(i).getString("game_id");
+						tempdate = listData.getJSONObject(i).getString("collect_time");
+						String pattern = "yyy-MM-dd HH:mm:ss"; //首先定义时间格式
+				        SimpleDateFormat format = new SimpleDateFormat(pattern);
+				        Date datetime = new Date();
+				        try{
+				        	datetime = format.parse(tempdate);
+				        }catch(ParseException e) {
+				            e.printStackTrace();
+				        }
+				        
+				        Log.e(TAG, "game_id: "+tempid+" "+tempdate);
+						favoriteGame.add(new FavoriteGame(tempid, cid, datetime));
 					} catch (JSONException e){
 						Log.e(TAG, "ERROR");
 						e.printStackTrace();
 					}
 					
 				}
+				
+				/*Log.e(TAG, "After sort:");
+				for(FavoriteGame i : favoriteGame)
+					Log.e(TAG, i.datetime.toString());*/
 				//获取游戏图片url
-				for(int i = 0; i<favoriteGameId.size(); i++)
+				for(int i = 0; i<favoriteGame.size(); i++)
 				{
-					String gameId = favoriteGameId.get(i);
-					pair3 = new BasicNameValuePair("id", gameId);
-					data.clear();
-					str = null;
-					data.add(pair3);
-					
+					final String gameId = favoriteGame.get(i).id;
 					final int index = i;
-					final int end = favoriteGameId.size() - 1;
+					final int end = favoriteGame.size() - 1;					
 					new Thread(){
 						@Override
 						public void run()
 						{
-							str = HttpUtils.doPost(Global.GAME_GETGAMEBYID, data);
+							List<NameValuePair> data = new ArrayList<NameValuePair>();
+							NameValuePair pair3 = new BasicNameValuePair("id", gameId);
+							data.add(pair3);
+							String str = HttpUtils.doPost(Global.GAME_GETGAMEBYID, data);
 							//System.out.println(str);
 							try {
 								JSONObject json = new JSONObject(str);
 								String message = json.getString( "message" );
 								Log.d(TAG, "message: "+message);			
-								JSONObject game = json.getJSONObject( "rowdata" );			
-								//Log.d(TAG, "rowdata: "+json.getString("rowdata"));								
-								list.add(game.getString("image"));
+								JSONObject game = json.getJSONObject( "rowdata" );
+								Log.e(TAG, "gameId: "+data.get(0).getValue());				
+								Log.e(TAG, "url: "+game.getString("image"));
+								FavoriteGame fGame = favoriteGame.get(index);
+								fGame.setUrl(game.getString("image"));
+								list.add(fGame);
 								if(index == end)
 									handler.sendEmptyMessage(1);
 								
 							} catch (JSONException e) {
-								// TODO Auto-generated catch block
 								Log.e(TAG, "getUrlERROR");
 								e.printStackTrace();
 							}
@@ -275,5 +379,17 @@ public class FavoritesFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+	}
+
+	@Override
+	public void onBackPressed() {
+		((MainActivity) getActivity()).showLeft();
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK)
+			((MainActivity) getActivity()).showLeft();
+		return true;
 	}
 }

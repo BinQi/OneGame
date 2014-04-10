@@ -24,15 +24,17 @@ import android.widget.ImageView;
 
 import com.sungy.onegame.R;
 
+import com.sungy.onegame.activity.FavoritesFragment.FavoriteGame;
+
 public class MyAdapter extends BaseAdapter{
-    private ArrayList<String> list;
+    private ArrayList<FavoriteGame> list;
     private static HashMap<Integer,Boolean> isSelected;
     private Context context;
     private LayoutInflater inflater = null;
     private int count = 0;
     private Bitmap bitMap;
     
-    public MyAdapter(ArrayList<String> list, Context context) {
+    public MyAdapter(ArrayList<FavoriteGame> list, Context context) {
         this.context = context;
         this.list = list;
         inflater = LayoutInflater.from(context);
@@ -105,7 +107,7 @@ public class MyAdapter extends BaseAdapter{
         	@Override
 			public void run()
         	{
-        		bitMap = returnBitMap(list.get(index));
+        		bitMap = returnBitMap(list.get(index).url);
         	}
         }.start();
         while(null == bitMap){}

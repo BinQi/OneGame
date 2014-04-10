@@ -230,7 +230,7 @@ public class SampleListFragment extends ListFragment implements OnScrollListener
 				
 				for(int i = info.length()-1; i >=0 ; i--){ 				
 					final JSONObject jsonObj = ((JSONObject)info.opt(i)); 
-					
+					Global.getDetailList().put(jsonObj.getString("id"), i);
 					ContentValues values = new ContentValues();
 		            
 					values.put(OneGameColumn.ONEGAMEID,jsonObj.getInt("id"));
