@@ -21,8 +21,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -103,14 +101,10 @@ public class LeftFragment extends Fragment implements Callback {
 												qzone = ShareSDK.getPlatform(
 														getActivity(),
 														QZone.NAME);
-												qzone.SSOSetting(true);
-												qzone.removeAccount();
 											} else if (plat.equals("weibo")) {
 												weibo = ShareSDK.getPlatform(
 														getActivity(),
 														SinaWeibo.NAME);
-												weibo.SSOSetting(true);
-												weibo.removeAccount();
 											}
 											userNameTv.setText("name");
 											userLoginTv.setText("登录");
@@ -324,9 +318,6 @@ public class LeftFragment extends Fragment implements Callback {
 		}
 		weibo = ShareSDK.getPlatform(getActivity(), SinaWeibo.NAME);
 		weibo.SSOSetting(true);
-		if (userLoginTv.getText().equals("切换用户")) {
-			weibo.removeAccount();
-		}
 		weibo.setPlatformActionListener(new PlatformActionListener() {
 
 			@Override
@@ -340,7 +331,7 @@ public class LeftFragment extends Fragment implements Callback {
 				final String name = arg0.getDb().getUserName();
 				final String userId = arg0.getDb().getUserId();
 				final String iconUrl = arg0.getDb().getUserIcon();
-
+				
 				afterLogin(name, "weibo", userId, iconUrl);
 			}
 
@@ -349,6 +340,7 @@ public class LeftFragment extends Fragment implements Callback {
 
 			}
 		});
+		
 		weibo.authorize();
 	}
 
@@ -360,9 +352,6 @@ public class LeftFragment extends Fragment implements Callback {
 		}
 		qzone = ShareSDK.getPlatform(getActivity(), QZone.NAME);
 		qzone.SSOSetting(true);
-		if (userLoginTv.getText().equals("切换用户")) {
-			qzone.removeAccount();
-		}
 		qzone.setPlatformActionListener(new PlatformActionListener() {
 
 			@Override
