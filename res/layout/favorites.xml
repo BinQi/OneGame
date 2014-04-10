@@ -34,12 +34,24 @@
   		    />
   		
   	</LinearLayout>
-  	<Spinner 
-  	    android:id="@+id/favorites_spinner" 
-  	    android:layout_width="match_parent" 
-  	    android:layout_height="wrap_content" /> 
   	<ListView 
   	    android:id="@+id/favorites_list" 
   	    android:layout_width="match_parent" 
-  	    android:layout_height="match_parent" /> 
+  	    android:layout_height="wrap_content" /> 
+  	
+  	<RelativeLayout android:id="@+id/fedit"
+  	    android:visibility="invisible"
+  	    android:layout_width="match_parent"
+  	    android:layout_height="match_parent"> 
+	  	<Button android:id="@+id/fdelete"
+	  	    android:layout_centerHorizontal="true"
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="wrap_content"
+	  	    android:text="删除" />
+	  	<Button android:id="@+id/fcancel"
+	  	    android:layout_toRightOf="@id/fdelete"
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="wrap_content"
+	  	    android:text="取消" />
+  	</RelativeLayout>"
   </LinearLayout>

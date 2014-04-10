@@ -15,7 +15,7 @@ import com.sungy.onegame.mclass.*;
 
 import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
-import com.sungy.onegame.activity.MyAdapter.ViewHolder;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,11 +24,13 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
@@ -42,64 +44,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class FavoritesFragment extends Fragment {
-	private ListView favoritesList;
-	private Spinner spinner;
+	static ListView favoritesList;
 	private MyAdapter mAdapter;
 	private Switch switcher;
+	private Button deleteButton, cancelButton;
+	private static RelativeLayout buttonRL;
+	
 	private final String TAG = "FavoritesFragment";
-	private String userid = "1";
+	private String userid;
 	private String str;
-	private static final String[] favoriteTypes = {"游戏", "音乐", "CG"};
-	private boolean init = true;
-	private boolean gameFirst = true;
-	private boolean musicFirst = true;
-	private boolean cgFirst = true;
 	
 	private ArrayList<String> list = new ArrayList<String>();
-	private ArrayList<String> Gamelist = new ArrayList<String>();
-	private ArrayList<String> Musiclist = new ArrayList<String>();
-	private ArrayList<String> CGlist = new ArrayList<String>();
 	private List<NameValuePair> data = new ArrayList<NameValuePair>();
 	private int checkNum;
-	
-	class SpinnerSelectedListener implements OnItemSelectedListener{  
-		  
-        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,  
-                long arg3) {  
-            Log.d(TAG, favoriteTypes[arg2]);
-            switch(arg2)
-            {
-            case 0:
-            	if(init)
-            		init = false;
-            	else
-            		getGameData();          	
-            	break;
-            case 1:
-            	getMusicData();
-            	break;
-            case 2:
-            	getCGData();
-            	break;
-            default:
-            	break;
-            }
-        }  
-  
-        public void onNothingSelected(AdapterView<?> arg0) {  
-        }  
-    };
-	
-	private void getSelectedItems()
-	{
-		for(int i = 0; i<favoritesList.getChildCount(); i++)
-		{
-			RelativeLayout RL = (RelativeLayout)favoritesList.getChildAt(i);
-			CheckBox checkBox = (CheckBox)RL.findViewById(R.id.favorites_checkbox);
-			if(checkBox.isChecked())
-			System.out.println(((Integer)i).toString()+" is checked!");
-		}
-	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,6 +71,28 @@ public class FavoritesFragment extends Fragment {
 		
 		//userid
 		userid = Global.getUserId();
+		buttonRL = (RelativeLayout)view.findViewById(R.id.fedit);
+		deleteButton = (Button)view.findViewById(R.id.fdelete);
+		cancelButton = (Button)view.findViewById(R.id.fcancel);
+		deleteButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				//TODO delete item and refresh
+			}
+		});
+		cancelButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				//handler.sendEmptyMessage(1);
+				ArrayList<Integer> selectArr = mAdapter.getAllSelected();
+				for(Integer i : selectArr){
+					ViewHolder viewHolder = (ViewHolder)favoritesList.getChildAt(i).getTag();
+					viewHolder.cb.toggle();
+				}
+				mAdapter.initData();
+				FavoritesFragment.handl_visible.sendEmptyMessage(0);
+			}
+		});
 		
 		switcher = (Switch)view.findViewById(R.id.switch1);
 		switcher.setOnCheckedChangeListener(new OnCheckedChangeListener(){
@@ -129,20 +108,6 @@ public class FavoritesFragment extends Fragment {
                 }  
             }  
         });
-		
-		spinner = (Spinner)view.findViewById(R.id.favorites_spinner);
-		//将可选内容与ArrayAdapter连接起来  
-		ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, favoriteTypes);  
-          
-        //设置下拉列表的风格  
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);  
-                
-        //将adapter 添加到spinner中  
-        spinner.setAdapter(arrayAdapter);            
-        //添加事件Spinner事件监听    
-        spinner.setOnItemSelectedListener(new SpinnerSelectedListener());          
-        //设置默认值  
-        spinner.setVisibility(View.VISIBLE);
         
 		favoritesList = (ListView)view.findViewById(R.id.favorites_list);
 		getGameData();
@@ -171,7 +136,31 @@ public class FavoritesFragment extends Fragment {
 		return view;
 	}
 	
-	private Handler handler =new Handler(){
+	static Handler handl_visible =new Handler(){
+	    //当有消息发送出来的时候就执行Handler的这个方法
+    	@Override	    
+	    public void handleMessage(Message msg){
+		    super.handleMessage(msg);
+		    switch (msg.what) {
+		    case 0:  
+                buttonRL.setVisibility(View.INVISIBLE);
+                for(int i = 0; i<favoritesList.getChildCount(); i++){
+            		ViewHolder viewHolder = (ViewHolder)favoritesList.getChildAt(i).getTag();
+            		viewHolder.cb.setFocusable(false);
+            	}
+                break;
+            case 1:
+            	buttonRL.setVisibility(View.VISIBLE);
+            	for(int i = 0; i<favoritesList.getChildCount(); i++){
+            		ViewHolder viewHolder = (ViewHolder)favoritesList.getChildAt(i).getTag();
+            		viewHolder.cb.setFocusable(true);
+            	}
+            	break;
+            }
+	    }
+    };
+    
+	@SuppressLint("HandlerLeak") private Handler handler =new Handler(){
 	    //当有消息发送出来的时候就执行Handler的这个方法
     	@Override	    
 	    public void handleMessage(Message msg){
@@ -189,25 +178,12 @@ public class FavoritesFragment extends Fragment {
     	Log.d(TAG, "Update");
     	mAdapter.initData();
     	mAdapter.notifyDataSetChanged();
-    }
-    
-    private void copy(ArrayList<String> arr0, ArrayList<String> arr1)
-    {
-    	arr0.clear();
-    	for(String item : arr1)
-    		arr0.add(item);
+    	Log.d(TAG, "Update Completed");
     }
     
 	private void getGameData()
 	{
-		if(!gameFirst)
-		{
-			copy(list, Gamelist);
-			mAdapter.initData();
-			mAdapter.notifyDataSetChanged();
-			return;
-		}
-		gameFirst = false;
+		Log.e(TAG, "getGameData is excuting.");
 		NameValuePair pair0, pair1, pair2;
 		String pageSize = "10", pageNo = "1";		
 		
@@ -282,11 +258,11 @@ public class FavoritesFragment extends Fragment {
 								//Log.d(TAG, "rowdata: "+json.getString("rowdata"));								
 								list.add(game.getString("image"));
 								if(index == end)
-									copy(Gamelist, list);
-								handler.sendEmptyMessage(1);
+									handler.sendEmptyMessage(1);
+								
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block
-								Log.e(TAG, "xERROR");
+								Log.e(TAG, "getUrlERROR");
 								e.printStackTrace();
 							}
 						}
@@ -294,33 +270,6 @@ public class FavoritesFragment extends Fragment {
 				}
 			}
 		}.start();
-	}
-	
-	private void getMusicData(){
-		if(!musicFirst)
-		{
-			copy(list, Musiclist);
-			mAdapter.initData();
-			mAdapter.notifyDataSetChanged();
-		}
-		musicFirst = false;
-		list.clear();
-		// TODO get Music
-		mAdapter.initData();
-		mAdapter.notifyDataSetChanged();
-	}
-	
-	private void getCGData(){
-		if(!cgFirst)
-		{
-			copy(list, CGlist);
-			mAdapter.initData();
-			mAdapter.notifyDataSetChanged();
-		}
-		cgFirst = false;
-		// TODO get CG
-		mAdapter.initData();
-		mAdapter.notifyDataSetChanged();
 	}
 	
 	public void onActivityCreated(Bundle savedInstanceState) {

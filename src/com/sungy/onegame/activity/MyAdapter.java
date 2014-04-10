@@ -11,11 +11,15 @@ import java.util.HashMap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 
 import com.sungy.onegame.R;
@@ -25,13 +29,9 @@ public class MyAdapter extends BaseAdapter{
     private static HashMap<Integer,Boolean> isSelected;
     private Context context;
     private LayoutInflater inflater = null;
-    
+    private int count = 0;
     private Bitmap bitMap;
     
-    class ViewHolder{
-    	CheckBox cb;
-    	ImageView iv;
-    }
     public MyAdapter(ArrayList<String> list, Context context) {
         this.context = context;
         this.list = list;
@@ -72,7 +72,26 @@ public class MyAdapter extends BaseAdapter{
             convertView = inflater.inflate(R.layout.favorites_list_item, null);
             holder.iv = (ImageView) convertView.findViewById(R.id.favorites_list_image);
             holder.cb = (CheckBox) convertView.findViewById(R.id.favorites_checkbox);
-          
+            holder.index = count;
+            holder.cb.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+            	@Override
+            	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+            		View v = (View)buttonView.getParent();
+            		ViewHolder h = (ViewHolder)v.getTag();
+            		FavoritesFragment.handl_visible.sendEmptyMessage(1);
+            		Log.e("MyAdapter", "aaaaaaaaa");
+            		//CheckBox cb = h.cb;
+            		Log.e("MyAdapter", "bbbbbbbbbb");
+            		
+            		Log.e("MyAdapter", "cccccccccc");
+            		isSelected.put(h.index, h.cb.isChecked());
+            		Log.d("MyAdapter", "item"+((Integer)h.index).toString()+" is click");
+            		ArrayList<Integer> alist = getAllSelected();
+                    for(int i : alist)
+                    	System.out.println(i);
+            	}
+            });
+            count++;
             convertView.setTag(holder);
         } else {
           
@@ -92,7 +111,7 @@ public class MyAdapter extends BaseAdapter{
         while(null == bitMap){}
         holder.iv.setImageBitmap(bitMap);
         bitMap = null;
-
+        initData();
         holder.cb.setChecked(getIsSelected().get(position));
         return convertView;
     }
