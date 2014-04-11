@@ -46,11 +46,14 @@
   	    android:layout_height="match_parent"> 
 	  	<Button android:id="@+id/fdelete"
 	  	    android:layout_centerHorizontal="true"
+	  	    android:layout_marginRight="10dip"
+	  	    android:background="@drawable/button"
 	  	    android:layout_width="wrap_content"
 	  	    android:layout_height="wrap_content"
 	  	    android:text="删除" />
 	  	<Button android:id="@+id/fcancel"
 	  	    android:layout_toRightOf="@id/fdelete"
+	  	    android:background="@drawable/button"
 	  	    android:layout_width="wrap_content"
 	  	    android:layout_height="wrap_content"
 	  	    android:text="取消" />

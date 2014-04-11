@@ -65,6 +65,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	private final String TAG = "FavoritesFragment";
 	private String userid;
 	private static boolean editmode = false;
+	private boolean deletefinish = true;
 	
 	private ArrayList<FavoriteGame> favoriteGame = new ArrayList<FavoriteGame>();
 	private ArrayList<FavoriteGame> list = new ArrayList<FavoriteGame>();
@@ -116,10 +117,20 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		deleteButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
+				if(!deletefinish)
+					return;
+				else
+					deletefinish = false;
 				NameValuePair pair0, pair1;
 				String gameId, cid;
 				boolean delete_success = true;
-				for(Integer i : mAdapter.getAllSelected()) {
+				ArrayList<FavoriteGame> sub = new ArrayList<FavoriteGame>();
+				ArrayList<FavoriteGame> sub1 = new ArrayList<FavoriteGame>();
+				ArrayList<Integer> allSelected = mAdapter.getAllSelected();
+				for(int index = 0; index<allSelected.size(); index++) {
+					Integer i = allSelected.get(index);
+					sub.add(list.get(i));
+					sub1.add(favoriteGame.get(i));
 					gameId = favoriteGame.get(i).id;
 					cid = favoriteGame.get(i).collect_id;
 					pair0 = new BasicNameValuePair("id", cid);
@@ -141,7 +152,12 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 						e.printStackTrace();
 					}
 				}
-				getGameData();
+				favoriteGame.removeAll(sub1);
+				list.removeAll(sub);
+				Log.e("xxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "+((Integer)list.size()).toString());
+				mAdapter.initData();
+		    	mAdapter.notifyDataSetChanged();
+		    	
 				View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.my_toast, null);
 				TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
 				if(delete_success)
@@ -154,7 +170,8 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		    	mytoast.setView(toastRoot);
 		    	mytoast.setGravity(Gravity.CENTER, 0, 0);
 		    	mytoast.setDuration(Toast.LENGTH_SHORT);
-		    	mytoast.show();		
+		    	mytoast.show();
+		    	deletefinish = true;
 			}
 		});
 		cancelButton.setOnClickListener(new OnClickListener(){
@@ -162,9 +179,14 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 			public void onClick(View v){
 				//handler.sendEmptyMessage(1);
 				ArrayList<Integer> selectArr = mAdapter.getAllSelected();
-				for(Integer i : selectArr){
-					ViewHolder viewHolder = (ViewHolder)favoritesList.getChildAt(i).getTag();
-					viewHolder.cb.toggle();
+				for(int index = 0; index<selectArr.size(); index++){
+					Integer i = selectArr.get(index);
+					View temp = favoritesList.getChildAt(i);
+					if(temp != null)
+					{
+						ViewHolder viewHolder = (ViewHolder)temp.getTag();
+						viewHolder.cb.toggle();
+					}
 				}
 				mAdapter.initData();
 				FavoritesFragment.handl_visible.sendEmptyMessage(0);

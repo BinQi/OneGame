@@ -44,6 +44,7 @@ public class MyAdapter extends BaseAdapter{
     }
 
     public void initData(){
+    	isSelected.clear();
         for(int i=0; i<list.size();i++) {
             getIsSelected().put(i,false);
         }
