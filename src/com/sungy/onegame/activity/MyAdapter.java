@@ -125,9 +125,12 @@ public class MyAdapter extends BaseAdapter{
     	try { 
     		myFileUrl = new URL(url); 
     	} catch (MalformedURLException e) { 
+    		Log.e("TAG", "returnBitMap URL error");
     		e.printStackTrace(); 
     	} 
     	try { 
+    		if(myFileUrl == null)
+    			Log.e("TAG", "nullllllllllllllllllllllllllllll");
 	    	HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection(); 
 	    	conn.setDoInput(true); 
 	    	conn.connect(); 
@@ -135,6 +138,7 @@ public class MyAdapter extends BaseAdapter{
 	    	bitmap = BitmapFactory.decodeStream(is); 
 	    	is.close(); 
     	} catch (IOException e) { 
+    		Log.e("TAG", "returnBitMap bitmap null error");
     		e.printStackTrace(); 
     	} 
     	return bitmap; 
