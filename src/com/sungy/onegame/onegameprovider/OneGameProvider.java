@@ -16,19 +16,20 @@ public class OneGameProvider extends ContentProvider {
 	private OneGameHelper dbHelper;
 	private SQLiteDatabase contactsDB;
 	
-	public static final String AUTHORITY = "com.tron.android.provider.OneGameProvider";
+	public static final String AUTHORITY = "com.sungy.onegame.provider.OneGameProvider";
 	public static final String RECORDS_TABLE = "games";
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/"+RECORDS_TABLE);
 	public static final int RECORDS = 1;
 	public static final int RECORD_ID = 2;
 	private static final UriMatcher uriMatcher;	
+	
 	static
 	{
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		uriMatcher.addURI(AUTHORITY,"games",RECORDS);
-		//������
 		uriMatcher.addURI(AUTHORITY,"games/#",RECORD_ID);
 	}
+	
 	@Override
 	public int delete(Uri uri, String where, String[] selectionArgs)
 	{
@@ -54,6 +55,7 @@ public class OneGameProvider extends ContentProvider {
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
+	
 	@Override
 	public String getType(Uri uri) {
 		// TODO Auto-generated method stub
@@ -67,6 +69,7 @@ public class OneGameProvider extends ContentProvider {
 				throw new IllegalArgumentException("Unsupported URI: " + uri);
 		}
 	}
+	
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues)
 	{
@@ -155,6 +158,7 @@ public class OneGameProvider extends ContentProvider {
 		}
 		throw new SQLException("Failed to insert row into " + uri);
 	}
+	
 	@Override
 	public boolean onCreate() {
 		// TODO Auto-generated method stub
@@ -163,6 +167,7 @@ public class OneGameProvider extends ContentProvider {
 		contactsDB = dbHelper.getWritableDatabase();
 		return (contactsDB == null) ? false : true;
 	}
+	
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
 	{
@@ -192,10 +197,10 @@ public class OneGameProvider extends ContentProvider {
 		c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}
+	
 	@Override
 	public int update(Uri uri, ContentValues values, String where, String[] selectionArgs)
 	{
-		//ִ�д�����ݿ�
 		contactsDB = dbHelper.getWritableDatabase();
 		int count;
 		switch (uriMatcher.match(uri))

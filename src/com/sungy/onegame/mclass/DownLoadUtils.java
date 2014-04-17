@@ -19,9 +19,7 @@ import android.os.StrictMode;
 public class DownLoadUtils {
 
 	//从网络加载图片
-	@SuppressLint("NewApi")
 	public static Bitmap downloadImage(String url,Context context) {
-		// TODO Auto-generated method stub
 		int fileSize = 0; 
 		try {
         	URL u = new URL(url);
@@ -61,8 +59,6 @@ public class DownLoadUtils {
 	
 	//从网络加载图片
 	public static Bitmap downloadIcon(String url) {
-//		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
-//		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath().build());
 		try {
 			URL mUrl = new URL(url);
 			HttpURLConnection mConnection = (HttpURLConnection) mUrl
@@ -79,5 +75,37 @@ public class DownLoadUtils {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	//加载文件并保存手机中
+	public static String downloadFile(String url, Context context) {
+		int fileSize = 0; 
+		try {
+        	URL u = new URL(url);
+        	
+            URLConnection conn = u.openConnection(); 
+            conn.connect(); 
+            InputStream is = conn.getInputStream(); 
+            fileSize = conn.getContentLength(); 
+            if(fileSize<1||is==null) 
+            {  
+            }else{ 
+            	String s = getPath(url, context);
+            	FileOutputStream fos = new FileOutputStream(s); 
+                byte[] bytes = new byte[1024]; 
+                int len = -1; 
+                while((len = is.read(bytes))!=-1) 
+                { 
+                    fos.write(bytes, 0, len); 
+                } 
+                
+                is.close(); 
+                fos.close(); 
+                return s;
+            } 
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }  
+		return "";
 	}
 }

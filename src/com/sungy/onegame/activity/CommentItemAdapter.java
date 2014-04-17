@@ -1,12 +1,12 @@
 package com.sungy.onegame.activity;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -16,6 +16,7 @@ import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sungy.onegame.R;
@@ -42,8 +43,8 @@ public class CommentItemAdapter extends BaseAdapter{
 			if(msg.what == 1){
 				holder.comment_image.setImageBitmap(bitmaps.get(msg.arg1));
 //				notifyDataSetChanged();
-				notifyDataSetInvalidated();
-				Log.e("getView","notifyDataSetInvalidated");
+//				notifyDataSetInvalidated();
+//				Log.e("getView","notifyDataSetInvalidated");
 			}
 			super.handleMessage(msg);
 		}
@@ -73,7 +74,6 @@ public class CommentItemAdapter extends BaseAdapter{
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Log.e("getView","getView1");
 		boolean myPosition = false;
 		if(position == -1){	//为获取高度而特设的
 			myPosition = true;
@@ -93,7 +93,6 @@ public class CommentItemAdapter extends BaseAdapter{
 			holder = (ViewHolder)convertView.getTag();
 		}
 		
-		Log.e("getView","getView2");
 		//时间 
 		String time = DetailActivity.commentList.get(position).getComment_time();
 		//去掉秒数
@@ -101,13 +100,13 @@ public class CommentItemAdapter extends BaseAdapter{
 		holder.comment_user.setText(DetailActivity.commentList.get(position).getUser_name());
 		holder.comment_time.setText(time);
 		holder.comment_content.setText(DetailActivity.commentList.get(position).getComment());
-		Log.e("getView","getView3");
 		final int finalPosition = position;
+		final int finalUserid = DetailActivity.commentList.get(position).getUser_id();
 		if(myPosition){
 			holder.comment_image.setImageResource( R.drawable.defaultimage);
 		}else{
 			
-			if(!bitmaps.containsKey(position)){
+			if(!bitmaps.containsKey(finalUserid)){
 //				Bitmap bitmap = DownLoadUtils.downloadIcon(DetailActivity.commentList.get(position).getUser_image());
 //				if(bitmap==null){
 //					bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.defaultimage);
@@ -115,33 +114,30 @@ public class CommentItemAdapter extends BaseAdapter{
 //				bitmaps.put(position, bitmap);
 				
 				Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.defaultimage);
-				bitmaps.put(position, bitmap);
-				holder.comment_image.setImageBitmap(bitmaps.get(position));
+				bitmaps.put(finalUserid, bitmap);
+				holder.comment_image.setImageBitmap(bitmaps.get(finalUserid));
 				Thread t1 = new Thread(new Runnable() {
 					
 					@Override
 					public void run() {
 						Bitmap bitmap = DownLoadUtils.downloadIcon(DetailActivity.commentList.get(finalPosition).getUser_image());
 						if(bitmap!=null){
-							if(bitmaps.containsKey(finalPosition)){
-								bitmaps.remove(finalPosition);
-								bitmaps.put(finalPosition, bitmap);
+							if(bitmaps.containsKey(finalUserid)){
+								bitmaps.remove(finalUserid);
+								bitmaps.put(finalUserid, bitmap);
 								Message msg = new Message();
 								msg.what = 1;
-								msg.arg1 = finalPosition;
+								msg.arg1 = finalUserid;
 								myHandler.sendMessage(msg);
-								Log.e("getView","OK");
 							}
 						}
 					}
 				});
 				t1.start();
 			}else{
-				holder.comment_image.setImageBitmap(bitmaps.get(position));
+				holder.comment_image.setImageBitmap(bitmaps.get(finalUserid));
 			}
 		}
-		Log.e("getView","getView4");
-				
 		return convertView;
 	}
 	
@@ -151,14 +147,19 @@ public class CommentItemAdapter extends BaseAdapter{
 		int textWidth = holder.comment_content.getMeasuredWidth();
 //		int textSize = (int) holder.comment_content.getTextSize();
 		int lineHeight = holder.comment_content.getLineHeight();
-//		int textHeight = holder.comment_content.getMeasuredHeight();
-//		LinearLayout.LayoutParams margin = (LinearLayout.LayoutParams) holder.comment_content.getLayoutParams();
-//		int marginW = margin.leftMargin;
+		int textHeight = holder.comment_content.getMeasuredHeight();
+		LinearLayout.LayoutParams margin = (LinearLayout.LayoutParams) holder.comment_content.getLayoutParams();
+		int marginW = margin.leftMargin;
+//		Log.e(TAG, textWidth+"   "+width+"   "+marginW+"   ");
 		//计算行数
-		int nums = (textWidth%width==0)?(textWidth/width):(textWidth/width)+1;
+		int nums = (textWidth%(width+marginW)==0)?(textWidth/(width+marginW)):(textWidth/(width+marginW))+1;
 		//计算高度
-		int h = nums*lineHeight;
+		int h = (nums-1)*lineHeight;
 		return h;
+	}
+	
+	public void addNewComment(){
+		bitmaps.clear();
 	}
 	
 	

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,29 +21,32 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.BaseAdapter;
-import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.sharesdk.framework.Platform;
@@ -52,8 +56,6 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
 import cn.sharesdk.onekeyshare.ShareContentCustomizeCallback;
 
-import com.sungy.onegame.LeftFragment;
-import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
 import com.sungy.onegame.SampleListFragment;
 import com.sungy.onegame.mclass.DownLoadUtils;
@@ -61,7 +63,10 @@ import com.sungy.onegame.mclass.FileUtil;
 import com.sungy.onegame.mclass.Global;
 import com.sungy.onegame.mclass.HttpUtils;
 import com.sungy.onegame.mclass.OneGameComment;
+import com.sungy.onegame.mclass.OneGameGame;
 import com.sungy.onegame.mclass.ToastUtils;
+import com.sungy.onegame.onegameprovider.OneGameColumn;
+import com.sungy.onegame.onegameprovider.OneGameProvider;
 import com.sungy.onegame.view.LoadingImageView;
 
 public class DetailActivity extends Activity implements OnClickListener{
@@ -81,17 +86,30 @@ public class DetailActivity extends Activity implements OnClickListener{
 	
 	private TextView detailTitle;
 	private TextView detailPraiseNo;
-	private TextView detailIntruction;
+	private LinearLayout detailIntruction;
 	
 	private ListView detailComments;
 	private String shareTextString;
 	
-	//new
+	private ScrollView container;
+	
+	//详细图片
 	private Bitmap[] detailImages = null;
 	private String detailImageStr = "";
 	private String[] detailImageUrls = null;
-	Gallery gallery = null;
-	ImageAdapter adapter = null;
+	private ImageView[] detailImageViews = null;
+	private boolean isLoadImageViews = false;
+	private Bitmap defaultBitmap = null;
+	//测评内容
+	private String intruction;
+	private LayoutInflater inflater;
+	//加载评论的页数
+	private int loadCommentPageNo = 1;
+	//是否正在加载评论
+	private boolean isLoadingComment = false;
+	//暂无评论提示
+	private TextView noComment = null;
+	private int commentListHeight = 0;
 	
 	CommentItemAdapter commentAdapter = null;
 	
@@ -113,29 +131,33 @@ public class DetailActivity extends Activity implements OnClickListener{
 	public final int COMMENT_DATA_COMPLEMENT = 5;
 	public final int RELOAD_COMMENT = 6;
 	public final int TOPIMAGE = 7;
+	public final int SET_NEWIMAGE = 8;
+	public final int CANCLE_LOADINGIMAGE = 9;
+	public final int LOAD_COMPLEMENT = 10;
 	private Handler myHandler = new Handler(){
 
 		@Override
 		public void handleMessage(Message msg) {
 			if(msg.what == REFLASH_GALLERY){		//刷新图片长廊
-				if(gallery!=null){
-					gallery.postInvalidate();
-				}
-				if(adapter !=null){
-					adapter.notifyDataSetChanged();
-					adapter.resetView(msg.arg1);
-				}
+				
 			}else if(msg.what == INITVIEW){			//初始化View
 				initView();
+				
 			}else if(msg.what == COLLECTED){		//设置已收藏图片
 				detailCollect.setImageResource(R.drawable.detail_icon_fav1_normal);
+				
 			}else if(msg.what == INITDATA){			//初始化数据
 				initData();
 				initComment();
+				
 			}else if(msg.what == COMMENT_DATA_COMPLEMENT){		//评论数据加载完回调
 				commentAdapter = new CommentItemAdapter(getApplicationContext());
 				detailComments.setAdapter(commentAdapter);
-				setListViewHeightBaseOnChildren(detailComments);
+				if(!setListViewHeightBaseOnChildren(detailComments)){
+					noComment.setVisibility(View.VISIBLE);
+				}else{
+					noComment.setVisibility(View.GONE);
+				}
 				
 				detailImage.setFocusable(true);
 				detailImage.setFocusableInTouchMode(true);
@@ -146,11 +168,26 @@ public class DetailActivity extends Activity implements OnClickListener{
 				
 			}else if(msg.what == RELOAD_COMMENT){			//重新加载评论数据回调
 				commentAdapter.notifyDataSetChanged();
-				setListViewHeightBaseOnChildren(detailComments);
+				//如果没有数据，显示无评论提示
+				if(!setListViewHeightBaseOnChildren(detailComments)){
+					noComment.setVisibility(View.VISIBLE);
+				}else{
+					noComment.setVisibility(View.GONE);
+				}
 				
 			}else if(msg.what == TOPIMAGE){					//顶部图片加载
 				detailImage.setImageBitmap(BitmapFactory.decodeStream((InputStream) msg.obj));
 				msg.obj = null;
+				
+			}else if(msg.what == SET_NEWIMAGE){
+				int loc = msg.arg1;
+				detailImageViews[loc].setImageBitmap(detailImages[loc]);
+				
+			}else if(msg.what == CANCLE_LOADINGIMAGE){		//撤出loading
+				loading.setVisibility(View.GONE);
+				
+			}else if(msg.what == LOAD_COMPLEMENT){			//评论全部加载完，没有更多数据
+				ToastUtils.showDefaultToast(DetailActivity.this, "没有更多评论", Toast.LENGTH_SHORT);
 			}
 		}
 		
@@ -271,6 +308,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 				comment.setComment_time(jsonObj.getString("comment_time"));
 				comment.setComment(jsonObj.getString("comment"));
 				comment.setUser_image(jsonObj.getString("user_image"));
+				comment.setUser_id(jsonObj.getInt("user_id"));
 				
 				comments.add(comment);
 			} 
@@ -283,6 +321,12 @@ public class DetailActivity extends Activity implements OnClickListener{
 	}
 
 	private void initView() {
+		inflater = LayoutInflater.from(this);
+		
+		container = (ScrollView)findViewById(R.id.container);
+		container.setOnTouchListener(scrollOnTouchListener);
+		
+		noComment = (TextView)findViewById(R.id.nocomment);
 		layout = (RelativeLayout)findViewById(R.id.detail_layout);
 		loading = (LoadingImageView)findViewById(R.id.loading);
 		
@@ -295,37 +339,67 @@ public class DetailActivity extends Activity implements OnClickListener{
 		detailDownload = (ImageView) findViewById(R.id.detail_download);
 		
 		detailPraiseNo = (TextView) findViewById(R.id.detail_praiseNo);
-		detailIntruction = (TextView) findViewById(R.id.detail_instruction);
+		detailIntruction = (LinearLayout) findViewById(R.id.detail_instruction);
 		
 		detailComments = (ListView) findViewById(R.id.detail_comments);
 		
 		Log.e(TAG, "加载部分UI完毕");
 		
-		detailPraiseNo.setText(Integer.toString(SampleListFragment.gameList.get(index).getPraise_num()));
-		detailIntruction.setText(SampleListFragment.gameList.get(index).getDetail());
-		detail_image_url = SampleListFragment.gameList.get(index).getImage();	
+		OneGameGame game = SampleListFragment.gameList.get(index);
+		
+		detailPraiseNo.setText(Integer.toString(game.getPraise_num()));
+//		detailIntruction.setText(game.getDetail());
+		detail_image_url = SampleListFragment.gameMap.get(SampleListFragment.gameList.get(index).getId()).getImage();	
 		detailImage.setImageResource(R.drawable.defalut); 	//默认图片
 		
 		//加载detailImage
-		detailImageStr = SampleListFragment.gameList.get(index).getDetail_image();
+		detailImageStr = game.getDetail_image();
 		detailImageUrls = detailImageStr.split(";");
 		detailImages = new Bitmap[detailImageUrls.length];
-		Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.loading3);
+		defaultBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.defalut2);
+		detailImageViews = new ImageView[detailImageUrls.length];
 		int l = 0;
 		for(l=0;l<detailImageUrls.length;l++){
-			detailImages[l] = bitmap;
+			detailImages[l] = defaultBitmap;
+			detailImageViews[l] = (ImageView) inflater.inflate(R.layout.intruction_image, null);
+			detailImageViews[l].setImageBitmap(detailImages[l]);
 		}
-		gallery = (Gallery)findViewById(R.id.gallery);
-		adapter = new ImageAdapter(this);
-		gallery.setAdapter(adapter);
+		
+		//设置图文并茂
+		intruction = game.getDetail();
+		String[] intructionArr = intruction.split("#image#");
+		TextView text;
+		for(l=0; l<intructionArr.length; l++){
+			text = (TextView) inflater.inflate(R.layout.intruction_text, null);
+			text.setText(intructionArr[l]);
+			detailIntruction.addView(text);
+			if(l == intructionArr.length-1){
+				break;
+			}
+			if(l >= detailImageViews.length){
+				 continue;
+			}
+//			detailImageViews[t] = (ImageView) inflater.inflate(R.layout.intruction_image, null);
+//			detailImageViews[t].setImageBitmap(detailImages[t]);
+			detailIntruction.addView(detailImageViews[l]);
+		}
+		isLoadImageViews = true;
 		
 		Log.e(TAG, "加载多图片");
+		
+		//加载点赞信息
+		String key = "praise_"+SampleListFragment.gameList.get(index).getId();
+		if(Global.readPraiseInfo(key, this)){	//已赞
+			isPraise = 1;
+		}else{
+			isPraise = 2;
+		}
 		
 		if(Global.isLogin()){
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					//加载赞和收藏
+					//加载收藏
 					String userid = Global.getUserId();
 					String gameid = Integer.toString(SampleListFragment.gameList.get(index).getId());
 					List <NameValuePair> params = new ArrayList<NameValuePair>();
@@ -340,19 +414,12 @@ public class DetailActivity extends Activity implements OnClickListener{
 						isCollect = (json.getString("message").equals("true"))?1:2;
 						collectId = json.getString("id");
 						
-						str = HttpUtils.doPostWithoutStrict(Global.PRAISE_ISRAISE, params);
-						json = new JSONObject(str);
-						isPraise = (json.getString("message").equals("true"))?1:2;
-						praiseId = json.getString("id");
-						
 						//切换图片
 						if(isCollect == 1){
 							myHandler.sendEmptyMessage(COLLECTED);
-//							detailCollect.setImageResource(R.drawable.detail_icon_fav1_normal);
 						}
 						Log.d(TAG, isCollect+"  "+isPraise);
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -369,37 +436,66 @@ public class DetailActivity extends Activity implements OnClickListener{
 		detailDownload.setOnClickListener(this);
 		
 		Log.e(TAG, "加载部分UI3完毕");
+	
 	}
 	
 	//初始化数据
 	private void initData(){
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				downloadImage(detail_image_url);//加载顶部图片
-			}
-		}).start();
+		final int gameId = SampleListFragment.gameList.get(index).getId();
+		
+		if(!detail_image_url.contains("http://")){
+			detailImage.setImageURI(Uri.fromFile(new File(detail_image_url)));
+		}else{
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					downloadImage(detail_image_url);//加载顶部图片
+				}
+			}).start();
+		}
 		Log.e(TAG, "加载大图片");
 		
 		new Thread(new Runnable() {
 			@Override
 			public void run() {	
 				int l = 0;
-				Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.loading3);
+				Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.defalut2);
 				Bitmap bitmap2;
-				for(l=0;l<detailImageUrls.length;l++){
-					bitmap2 = DownLoadUtils.downloadImage(detailImageUrls[l], getApplicationContext());
-					detailImages[l] = null;
-					if(bitmap2==null){
-						bitmap2 = bitmap;
+				ContentResolver cr = getContentResolver();
+				while(!isLoadImageViews){
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+
+						e.printStackTrace();
 					}
-					detailImages[l] = bitmap2;
-					//刷新Gallery
-					Message message = new Message();
-					message.what = REFLASH_GALLERY;
-					message.arg1 = l;
-					myHandler.sendMessage(message);
-					Log.d("detailImage", l+"加载完毕");
+				}
+				for(l=0;l<detailImageUrls.length;l++){
+					
+					//图片若不是本地，则要下载到本地
+					if(detailImageUrls[l].contains("http://")){
+						String path = DownLoadUtils.downloadFile(detailImageUrls[l], getApplicationContext());
+						detailImageStr = detailImageStr.replace(detailImageUrls[l], path);
+						//修改数据库图片路径
+						if(!path.equals("")	&& path!=null){
+							ContentValues cv = new ContentValues();
+							cv.put(OneGameColumn.ONEGAMEDETAILIMAGE, detailImageStr);
+							String[] args = {String.valueOf(gameId)};
+							cr.update(OneGameProvider.CONTENT_URI, cv, ""+OneGameColumn.ONEGAMEID+"=?", args);
+						}
+						detailImageUrls[l] = path;
+					}
+					//图片若是本地，则要加载
+					if(!detailImageUrls[l].contains("http://")){
+						detailImages[l] = BitmapFactory.decodeFile(detailImageUrls[l]);
+					}
+					//设置图片
+					Message msg = new Message();
+					msg.arg1 = l;
+					msg.what = SET_NEWIMAGE;
+					myHandler.sendMessage(msg);
+					
+					Log.d("detailImage", "第"+l+"张图片加载完毕");
 				}
 				bitmap2 = null;
 				bitmap = null;
@@ -413,28 +509,17 @@ public class DetailActivity extends Activity implements OnClickListener{
 			@Override
 			public void run() {	
 				Log.e(TAG, "加载评论");
+				isLoadingComment = true;
 				commentList = getCommentList();
 				Log.e(TAG, "加载评论完毕");
-
+				isLoadingComment = false;
+				
 				myHandler.sendEmptyMessage(COMMENT_DATA_COMPLEMENT);
-//				commentAdapter = new CommentItemAdapter(getApplicationContext());
-//				detailComments.setAdapter(commentAdapter);
-//				setListViewHeightBaseOnChildren(detailComments);
-//				detailComments.postInvalidate();
-		//		Button button = (Button)findViewById(R.id.more_comment);
-				//显示更多评论按钮
-		//		if(commentList.size() == 10){
-		//			button.setVisibility(View.VISIBLE);
-		//		}
 			}
 		}).start();
 	}
 	
-	@SuppressLint("NewApi")
 	private void downloadImage(String url) {
-		// TODO Auto-generated method stub
-//		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
-//		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath().build());
 		int fileSize = 0; 
 		try {
         	URL u = new URL(url);
@@ -455,7 +540,6 @@ public class DetailActivity extends Activity implements OnClickListener{
                 } 
                 if(getPath(url).endsWith(".jpg")||getPath(url).endsWith(".png") ||getPath(url).endsWith(".jpeg")){ 
                     FileInputStream fis = new FileInputStream(getPath(url)); 
-//                    detailImage.setImageBitmap(BitmapFactory.decodeStream(fis));
                     Message message = new Message();
                     message.what = TOPIMAGE;
                     message.obj = fis;
@@ -475,19 +559,23 @@ public class DetailActivity extends Activity implements OnClickListener{
         return path; 
     } 
 
-	//ScrollView下的listview需要调整高度
-	public void setListViewHeightBaseOnChildren(ListView listView) {
+	/**
+	 * ScrollView下的listview需要调整高度
+	 * @param listView
+	 * @return	若无数据，返回false
+	 */
+	public boolean setListViewHeightBaseOnChildren(ListView listView) {
 		Log.e(TAG, "高度计算1");
 		CommentItemAdapter listAdapter = (CommentItemAdapter)listView.getAdapter();   
         if (listAdapter == null) {  
-            return;  
+            return false;  
         }  
         Log.e(TAG, "高度计算2");
         if(commentList.size() == 0){
         	ViewGroup.LayoutParams params = listView.getLayoutParams(); 
-        	params.height = 300;
+        	params.height = 50;
         	listView.setLayoutParams(params);  
-        	return;
+        	return false;
         }
         Log.e(TAG, "高度计算3");
         int totalHeight = 0;
@@ -500,14 +588,18 @@ public class DetailActivity extends Activity implements OnClickListener{
             View listItem = listAdapter.getView(i, null, listView);  
             listItem.measure(0, 0);  
             totalHeight += listItem.getMeasuredHeight() + listAdapter.getTextHeight(i,textWidth);  
-//            totalHeight += viewHeight + listAdapter.getTextHeight(i,textWidth);  
+//            totalHeight += listItem.getMeasuredHeight();  
         }
         Log.e(TAG, "高度计算5");
         
         ViewGroup.LayoutParams params = listView.getLayoutParams();  
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        //增加一些距离作为缓冲
+        params.height += getWindowManager().getDefaultDisplay().getHeight()/4;
         listView.setLayoutParams(params); 
         Log.e(TAG, "高度计算6");
+        commentListHeight = params.height;
+        return true;
 	}
 	
 	@Override
@@ -524,18 +616,23 @@ public class DetailActivity extends Activity implements OnClickListener{
 			overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
 		}else if(v == detailPraise){	
 			//点赞
-			if(Global.checkLogin(this)){
+//			if(Global.checkLogin(this)){
 				if(isPraise == 2){
-					ToastUtils.showDefaultToast(getApplicationContext(), "点赞中...", Toast.LENGTH_SHORT);
+					ToastUtils.showDefaultToast(getApplicationContext(), "点赞成功", Toast.LENGTH_SHORT);
 					praise(useid, usename, gamename, gameid);
 					SampleListFragment.gameList.get(index).setPraise_num(SampleListFragment.gameList.get(index).getPraise_num()+1);
 					detailPraiseNo.setText(Integer.toString(Integer.parseInt((String) detailPraiseNo.getText())+1));
 				}else if(isPraise == 1){
+					ToastUtils.showDefaultToast(getApplicationContext(), "取消点赞成功", Toast.LENGTH_SHORT);
 					canclePraise(praiseId, gameid);
 					SampleListFragment.gameList.get(index).setPraise_num(SampleListFragment.gameList.get(index).getPraise_num()-1);
 					detailPraiseNo.setText(Integer.toString(Integer.parseInt((String) detailPraiseNo.getText())-1));
+				}else if(isPraise == 3){
+					ToastUtils.showDefaultToast(getApplicationContext(), "我又不是点读机，点多了我会坏的(╯｀□′)╯（┻━┻）", Toast.LENGTH_SHORT);
+				}else if(isPraise == 0){
+					ToastUtils.showDefaultToast(getApplicationContext(), "正在加载数据，请稍后重试", Toast.LENGTH_SHORT);
 				}
-			}
+//			}
 		}else if(v == detailShare){
 			if(Global.checkLogin(this)){
 				share(gameurl,gamename,gameid);
@@ -543,13 +640,17 @@ public class DetailActivity extends Activity implements OnClickListener{
 		}else if(v == detailCollect){
 			if(Global.checkLogin(this)){
 				if(isCollect == 2){
-					ToastUtils.showDefaultToast(getApplicationContext(), "收藏中...", Toast.LENGTH_SHORT);
+					ToastUtils.showDefaultToast(getApplicationContext(), "收藏成功", Toast.LENGTH_SHORT);
 					collect(useid, usename, gamename, gameid);
 					detailCollect.setImageResource(R.drawable.detail_icon_fav1_normal);
 				}else if(isCollect == 1){
 					cancleCollect(collectId,gameid);
-					ToastUtils.showDefaultToast(getApplicationContext(), "已取消收藏", Toast.LENGTH_SHORT);
+					ToastUtils.showDefaultToast(getApplicationContext(), "取消收藏成功", Toast.LENGTH_SHORT);
 					detailCollect.setImageResource(R.drawable.detail_icon_fav_normal);
+				}else if(isPraise == 3){
+					ToastUtils.showDefaultToast(getApplicationContext(), "我又不是点读机，点多了我会坏的(╯｀□′)╯（┻━┻）", Toast.LENGTH_SHORT);
+				}else if(isPraise == 0){
+					ToastUtils.showDefaultToast(getApplicationContext(), "正在加载数据，请稍后重试", Toast.LENGTH_SHORT);
 				}
 			}
 		}else if(v == detailComment){
@@ -573,7 +674,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 										ToastUtils.showDefaultToast(getApplicationContext(), "评论成功", Toast.LENGTH_SHORT);
 										//重新加载评论
 //										reloadComment();
-										newComment(useid, usename, commentStr,userimage);
+										newComment(useid, usename, commentStr,userimage,useid);
 									}
 								})
 				.create();
@@ -586,6 +687,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 	
 	//点赞
 	private void praise(final String user_id,final String user_name,final String game_name,final String game_id){
+		isPraise = 3;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -607,10 +709,14 @@ public class DetailActivity extends Activity implements OnClickListener{
 				}
 			}
 		}).start();
+		//写入sharepreference
+		String key = "praise_"+game_id;
+		Global.writePraiseInfo(key, this, 1);
 	}
 	
 	//取消点赞
 	private void canclePraise(final String praise_id,final String game_id){
+		isPraise = 3;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -623,10 +729,14 @@ public class DetailActivity extends Activity implements OnClickListener{
 				isPraise = 2;
 			}
 		}).start();
+		//写入sharepreference
+		String key = "praise_"+game_id;
+		Global.writePraiseInfo(key, this, 0);
 	}
 	
 	//收藏
 	private void collect(final String user_id,final String user_name,final String game_name,final String game_id){
+		isCollect = 3;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -652,6 +762,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 	
 	//取消收藏
 	private void cancleCollect(final String collect_id,final String game_id){
+		isCollect = 3;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -684,43 +795,14 @@ public class DetailActivity extends Activity implements OnClickListener{
 		}).start();
 	}
 
-	
-	public class ImageAdapter extends BaseAdapter {  
-	    private Context mContext;  
-	        public ImageAdapter(Context context) {  
-	        mContext = context;  
-	    }  
-	  
-	    public int getCount() {   
-	        return detailImageUrls.length;  
-	    }  
-	  
-	    public Object getItem(int position) {  
-	        return position;  
-	    }  
-	  
-	    public long getItemId(int position) {  
-	        return position;  
-	    }  
-	  
-	    public View getView(int position, View convertView, ViewGroup parent) {  
-	        ImageView image = new ImageView(mContext);  
-	        image.setImageBitmap(detailImages[position]);
-	        image.setAdjustViewBounds(true);  
-	        image.setLayoutParams(new Gallery.LayoutParams(  
-	        		Gallery.LayoutParams.WRAP_CONTENT, Gallery.LayoutParams.WRAP_CONTENT));  
-	        return image;  
-	    }
-	    
-	    public void resetView(int position){
-	    	getView(position, null, null);
-	    }
-	}  
-	
 	//回收
 	public void destroy(){
 		for(int i = 0 ;i<detailImages.length;i++){
-			detailImages[i].recycle();
+			if(detailImages[i] != null)
+				detailImages[i].recycle();
+		}
+		if(defaultBitmap != null){
+			defaultBitmap.recycle();
 		}
 	}
 	
@@ -745,21 +827,22 @@ public class DetailActivity extends Activity implements OnClickListener{
 			public void run() {
 				commentList = getCommentList();	
 				myHandler.sendEmptyMessage(RELOAD_COMMENT);
-//				commentAdapter.notifyDataSetChanged();
 			}
 		}).start();
 	}
 	
 	//添加新评论
-	private void newComment(String useid,String usename,String commentStr,String userimage){
+	private void newComment(String useid,String usename,String commentStr,String userimage,String userid){
 		List<OneGameComment> newlist = new ArrayList<OneGameComment>();
 		
 		OneGameComment comment = new OneGameComment();
 		comment.setUser_name(usename);
-		comment.setComment_time(new Date().toGMTString());
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		comment.setComment_time(format.format(new Date()));
 		comment.setComment(commentStr);
 		comment.setUser_image(userimage);
-		
+		comment.setUser_id(Integer.valueOf(userid));
+
 		newlist.add(comment);
 		copyList(newlist, commentList);
 		commentList = newlist;
@@ -774,5 +857,106 @@ public class DetailActivity extends Activity implements OnClickListener{
 			a.add(comment);
 		}
 	}
+	
+	
+	/**
+	 * 加载更多评论
+	 */
+	private void loadMoreComment(){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				List <NameValuePair> params = new ArrayList<NameValuePair>();
+				params.add(new BasicNameValuePair("pageSize","10"));
+				params.add(new BasicNameValuePair("pageNo",String.valueOf(loadCommentPageNo)));
+				params.add(new BasicNameValuePair("game_id",Integer.toString(SampleListFragment.gameList.get(index).getId())));
+				String str = HttpUtils.doPostWithoutStrict(Global.COMMENT_GETBYUSERID, params);
+				
+				JSONObject json;
+				JSONArray info = new JSONArray();
+				List<OneGameComment> newlist = new ArrayList<OneGameComment>();
+				
+				try {			
+					json = new JSONObject(str);
+					info = json.getJSONArray( "listData" );
+					
+					for(int i = 0; i < info.length() ; i++){ 				
+						JSONObject jsonObj = ((JSONObject)info.opt(i)); 
+						
+						OneGameComment comment = new OneGameComment();
+						comment.setUser_name(jsonObj.getString("user_name"));
+						comment.setComment_time(jsonObj.getString("comment_time"));
+						comment.setComment(jsonObj.getString("comment"));
+						comment.setUser_image(jsonObj.getString("user_image"));
+						comment.setUser_id(jsonObj.getInt("user_id"));
+						//添加新评论到ListView
+						newlist.add(comment);
+					} 
+					copyList(commentList,newlist);
+					newlist = null;
+					//通知适配器刷新
+					myHandler.sendEmptyMessage(RELOAD_COMMENT);
+					//去掉加载中图片
+					myHandler.sendEmptyMessage(CANCLE_LOADINGIMAGE);
+					//若无数据加载，则提醒
+					if(info.length()==0)
+						myHandler.sendEmptyMessage(LOAD_COMPLEMENT);
+					
+					//如果已经没有数据可加载，关闭加载评论功能
+					if(info.length()!=0){
+						isLoadingComment = false;
+					}
+
+
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+
+	private OnTouchListener scrollOnTouchListener = new OnTouchListener() {
+		
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			if(event.getAction() == MotionEvent.ACTION_MOVE){
+				int scrollY=v.getScrollY();
+                int height=v.getHeight();
+                int scrollViewMeasuredHeight=container.getChildAt(0).getMeasuredHeight();
+                if(scrollY==0){
+                   }
+                if((scrollY+height)==scrollViewMeasuredHeight){
+                       System.out.println("滑动到了底部 scrollY="+scrollY);
+                       System.out.println("滑动到了底部 height="+height);
+                       System.out.println("滑动到了底部 scrollViewMeasuredHeight="+scrollViewMeasuredHeight);
+                       if(!isLoadingComment){
+	                   		isLoadingComment = true;
+	   	                	loadCommentPageNo++;
+	   	                	//显示加载图片
+	   	                	loading.setVisibility(View.VISIBLE);
+	   	                	//加载数据
+	   	                	loadMoreComment();
+	                   	}
+                   }
+			}
+//			if(event.getAction() == MotionEvent.ACTION_UP){
+//				container.measure(0, 0);
+//				Log.e(TAG+"onTouch", v.getScrollY()+"    "+v.getMeasuredHeight()+"    "+v.getHeight()+"    "+ ((ViewGroup) v).getChildAt(0).getMeasuredHeight());
+//				  // 判断滚动到底部
+//                if (container.getScrollY() >= container.getMeasuredHeight()) {
+//                	if(!isLoadingComment){
+//                		isLoadingComment = true;
+//	                	loadCommentPageNo++;
+//	                	//显示加载图片
+//	                	loading.setVisibility(View.VISIBLE);
+//	                	//加载数据
+//	                	loadMoreComment();
+//                	}
+//                }
+//			}
+			return false;
+		}
+	};
 	
 }

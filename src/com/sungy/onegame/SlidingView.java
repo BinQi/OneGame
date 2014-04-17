@@ -181,9 +181,11 @@ public class SlidingView extends ViewGroup {
 					if (oldScrollX < -getMenuViewWidth() / 2
 							|| velocityX > SNAP_VELOCITY) {
 						dx = -getMenuViewWidth() - oldScrollX;//������Ƴ���menuһ�룬���ٶȴ��ڣ���dx<0
+						((MainActivity)getContext()).setInLeft(true);
 					} else if (oldScrollX >= -getMenuViewWidth() / 2
 							|| velocityX < -SNAP_VELOCITY) {
 						dx = -oldScrollX;//���û��menuһ�룬���ٶ�С�ڣ���dx>0
+						((MainActivity)getContext()).setInLeft(false);
 					}
 				} 
 

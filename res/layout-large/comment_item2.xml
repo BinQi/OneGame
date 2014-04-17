@@ -18,7 +18,7 @@
 	        android:layout_height="75dp"
 	        android:scaleType="fitXY"
 	        android:src="@drawable/defaultimage"
-	        android:padding="5dp"
+	        android:padding="7.5dp"
 	        /> 
 	    <TextView 
 	        android:id="@+id/comment_username"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:textSize="18dp"
             android:textColor="#666666"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="10dp"
             />    
     </LinearLayout>
     <LinearLayout 

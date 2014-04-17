@@ -148,7 +148,8 @@ public class LeftFragment extends Fragment implements Callback {
 			public void onClick(View v) {
 				FragmentTransaction ft = getActivity()
 						.getSupportFragmentManager().beginTransaction();
-				ft.replace(R.id.center_frame, new SampleListFragment());
+//				ft.replace(R.id.center_frame, new SampleListFragment());
+				ft.replace(R.id.center_frame, ((MainActivity)getActivity()).getCenterFragment());
 				ft.commit();
 				((MainActivity) getActivity()).showLeft();
 			}
@@ -456,7 +457,7 @@ public class LeftFragment extends Fragment implements Callback {
 				params.add(new BasicNameValuePair("third_plat", plat));
 				params.add(new BasicNameValuePair("third_id", thirdId));
 				params.add(new BasicNameValuePair("user_image", iconUrl));
-				String str = HttpUtils.doPost(Global.USER_THIRDLOGIN, params);
+				String str = HttpUtils.doPostWithoutStrict(Global.USER_THIRDLOGIN, params);
 
 				// 写入全局数据
 				JSONObject json;

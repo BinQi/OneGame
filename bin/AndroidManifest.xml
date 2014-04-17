@@ -27,7 +27,7 @@
         android:theme="@style/AppTheme" >
         <provider
             android:name="com.sungy.onegame.onegameprovider.OneGameProvider"
-            android:authorities="com.tron.android.provider.OneGameProvider" />
+            android:authorities="com.sungy.onegame.provider.OneGameProvider" />
 
         <activity
             android:name="com.sungy.onegame.MainActivity"

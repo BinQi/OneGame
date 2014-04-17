@@ -1,5 +1,6 @@
 package com.sungy.onegame.mclass;
 
+
 import java.io.File;
 
 import android.content.Context;
@@ -8,7 +9,7 @@ import android.util.Log;
 
 public class FileUtil { 
     /**
-     * ����SDcard״̬
+     * 检验SDcard状态
      * @return boolean
      */ 
     public static boolean checkSDCard() 
@@ -21,9 +22,9 @@ public class FileUtil {
         } 
     } 
     /**
-     * �����ļ��ļ���Ŀ¼
+     * 保存文件文件到目录
      * @param context
-     * @return  �ļ������Ŀ¼
+     * @return  文件保存的目录
      */ 
     public static String setMkdir(Context context) 
     { 
@@ -38,7 +39,7 @@ public class FileUtil {
         if(!file.exists()) 
         { 
             boolean b = file.mkdirs(); 
-            Log.e("file", "�ļ�������  �����ļ�    "+b); 
+            Log.e("file", "文件不存在  创建文件    "+b); 
         }else{  
         } 
         return filePath; 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 
 import com.sungy.onegame.LeftFragment;
 
@@ -133,6 +134,42 @@ public class Global {
 	public interface LoginListener{
 		public void clickToQQ(Context context);
 		public void clickToWeibo(Context context);
+	}
+	
+	/**
+	 * 获取点赞信息
+	 * @param key	由"praise_"+gameid 组成
+	 * @param context
+	 * @return	返回是否点赞，若已赞则为true
+	 */
+	public static boolean readPraiseInfo(String key ,Context context){
+		//获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式  
+        SharedPreferences sp = context.getSharedPreferences("onegamePraiseInfo",Context.MODE_WORLD_READABLE);
+        if(sp.getInt(key, 0) == 0){
+        	return false;
+        }else{
+        	int t = sp.getInt(key, 0);
+        	if(t == 0){
+        		return false;
+        	}else{
+        		return true;
+        	}
+        }
+	}
+	
+	/**
+	 * 获取点赞信息
+	 * @param key	由"praise_"+gameid 组成
+	 * @param context
+	 * @param praiseInfo	0为没有点赞，1为点赞
+	 */
+	public static void writePraiseInfo(String key ,Context context,int praiseInfo){
+		//获取到sharepreference 对象， 参数一为xml文件名，参数为文件的可操作模式  
+		SharedPreferences sp = context.getSharedPreferences("onegamePraiseInfo",Context.MODE_WORLD_READABLE);
+        SharedPreferences.Editor edit = sp.edit();  
+        edit.putInt(key, praiseInfo);  
+        //提交  
+        edit.commit();  
 	}
 	
 }

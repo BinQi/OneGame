@@ -9,12 +9,19 @@ import com.sungy.onegame.mclass.ToastUtils;
 import com.sungy.onegame.view.TVOffAnimation;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -29,6 +36,9 @@ public class MainActivity extends FragmentActivity {
 	private LeftFragment leftFragment;
 	private SampleListFragment centerFragment;
 	private FragmentTransaction ft;
+	
+	//记录是否在左边
+	private boolean isInLeft = false;
 	
 	//记录返回按键次数
 	private int backCount = 0;
@@ -94,33 +104,29 @@ public class MainActivity extends FragmentActivity {
         Message msg = new Message();  
         msg.what = STOPSPLASH;  
         handler.sendMessageDelayed(msg, SPLASHTIME);  
+        
+        //网络是否可用判断
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(connectionReceiver, intentFilter);
 	}
 
 	public void showLeft() {
 		mSlidingMenu.showLeftView();
+		if(isInLeft){
+			isInLeft = false;
+		}else{
+			isInLeft = true;
+		}
 	}
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-//			new AlertDialog.Builder(this)
-//					.setTitle("提示")
-//					.setMessage("您确定要退出？")
-//					.setNegativeButton("取消",
-//							new DialogInterface.OnClickListener() {
-//								@Override
-//								public void onClick(DialogInterface dialog,
-//										int which) {
-//								}
-//							})
-//					.setPositiveButton("确定",
-//							new DialogInterface.OnClickListener() {
-//								public void onClick(DialogInterface dialog,
-//										int whichButton) {
-////									finish();
-//									android.os.Process.killProcess(android.os.Process.myPid());
-//								}
-//							}).show();
+			if(!isInLeft){
+				showLeft();
+				return true;
+			}
 			backCount++;
 			if(backCount == 1){
 				ToastUtils.showDefaultToast(this, "再按一次退出", Toast.LENGTH_SHORT);
@@ -133,7 +139,7 @@ public class MainActivity extends FragmentActivity {
 				}; 
 				timer = new Timer(true);
 				timer.schedule(task,2000);
-			}else {
+			}else if(backCount == 2){
 				mSlidingMenu.startAnimation(new TVOffAnimation());
 				TimerTask task = new TimerTask(){  
 					public void run() {  
@@ -150,5 +156,56 @@ public class MainActivity extends FragmentActivity {
 			return super.onKeyDown(keyCode, event);
 		}
 	}
+	
+
+	public SampleListFragment getCenterFragment() {
+		return centerFragment;
+	}
+
+	public void setCenterFragment(SampleListFragment centerFragment) {
+		this.centerFragment = centerFragment;
+	}
+	
+	
+	/**
+	 * 网络是否可用Receiver
+	 */
+	private BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			ConnectivityManager connectMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+			NetworkInfo mobNetInfo = connectMgr
+					.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+			NetworkInfo wifiNetInfo = connectMgr
+					.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+			if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
+				Log.d("connectionReceiver", "unconnect");
+				ToastUtils.showDefaultToast(MainActivity.this, "网络不可用", Toast.LENGTH_SHORT);
+			} else {
+
+				// connect network
+			}
+		}
+	};
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (connectionReceiver != null) {
+		   unregisterReceiver(connectionReceiver);
+		}
+	}
+
+	public boolean isInLeft() {
+		return isInLeft;
+	}
+
+	public void setInLeft(boolean isInLeft) {
+		this.isInLeft = isInLeft;
+	}
+	
+	
 	
 }

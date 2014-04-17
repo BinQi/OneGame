@@ -1,5 +1,10 @@
 package com.sungy.onegame.activity;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +27,8 @@ import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -67,7 +74,6 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	private static boolean editmode = false;
 	private boolean deletefinish = true;
 	
-	private ArrayList<FavoriteGame> favoriteGame = new ArrayList<FavoriteGame>();
 	private ArrayList<FavoriteGame> list = new ArrayList<FavoriteGame>();
 	//private List<NameValuePair> data = new ArrayList<NameValuePair>();
 	
@@ -76,14 +82,22 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 			collect_id = cid;
 			this.id = id;
 			this.datetime = datetime;
+			//bitmap = null;
 		}
+		
 		public void setUrl(String url){
 			this.url = url;
 		}
+		
+		//public void setBitmap(Bitmap bitmap){
+		//	this.bitmap = bitmap;
+		//}
+		
 		public String collect_id;
 		public String id;
 		public String url;
 		public Date datetime;
+		//public Bitmap bitmap;
 	}
 	
 	@Override
@@ -130,9 +144,9 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 				for(int index = 0; index<allSelected.size(); index++) {
 					Integer i = allSelected.get(index);
 					sub.add(list.get(i));
-					sub1.add(favoriteGame.get(i));
-					gameId = favoriteGame.get(i).id;
-					cid = favoriteGame.get(i).collect_id;
+
+					gameId = list.get(i).id;
+					cid = list.get(i).collect_id;
 					pair0 = new BasicNameValuePair("id", cid);
 					pair1 = new BasicNameValuePair("game_id", gameId);
 					List<NameValuePair> data = new ArrayList<NameValuePair>();
@@ -152,7 +166,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 						e.printStackTrace();
 					}
 				}
-				favoriteGame.removeAll(sub1);
+
 				list.removeAll(sub);
 				Log.e("xxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "+((Integer)list.size()).toString());
 				mAdapter.initData();
@@ -209,7 +223,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
         });
         
 		favoritesList = (ListView)view.findViewById(R.id.favorites_list);
-		getGameData();
+		handl_getdata.sendEmptyMessage(1);
 		mAdapter = new MyAdapter(list, getActivity());
 		favoritesList.setAdapter(mAdapter);
 		favoritesList.setOnItemClickListener(new OnItemClickListener() {
@@ -224,7 +238,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	                MyAdapter.getIsSelected().put(arg2, holder.cb.isChecked());            
             	}
             	else{
-            		String id = favoriteGame.get(arg2).id;
+            		String id = list.get(arg2).id;
             		int index = Global.getDetailList().get(id);
             		Bundle bundle = new Bundle();
             		bundle.putInt("index", index);
@@ -237,6 +251,19 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		return view;
 	}
 	
+	Handler handl_getdata =new Handler(){
+	    //当有消息发送出来的时候就执行Handler的这个方法
+    	@Override	    
+	    public void handleMessage(Message msg){
+		    super.handleMessage(msg);
+		    switch (msg.what) {
+            case 1:
+            	getGameData();
+            	break;
+            }
+	    }
+    };
+    
 	static Handler handl_visible =new Handler(){
 	    //当有消息发送出来的时候就执行Handler的这个方法
     	@Override	    
@@ -295,7 +322,6 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	{
 		Log.e(TAG, "getGameData is excuting.");
 		list.clear();
-		favoriteGame.clear();
 		
 		
 		//获取收藏列表
@@ -348,7 +374,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 				        }
 				        
 				        Log.e(TAG, "game_id: "+tempid+" "+tempdate);
-						favoriteGame.add(new FavoriteGame(tempid, cid, datetime));
+						list.add(new FavoriteGame(tempid, cid, datetime));
 					} catch (JSONException e){
 						Log.e(TAG, "ERROR");
 						e.printStackTrace();
@@ -360,11 +386,11 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 				for(FavoriteGame i : favoriteGame)
 					Log.e(TAG, i.datetime.toString());*/
 				//获取游戏图片url
-				for(int i = 0; i<favoriteGame.size(); i++)
+				for(int i = 0; i<list.size(); i++)
 				{
-					final String gameId = favoriteGame.get(i).id;
+					final String gameId = list.get(i).id;
 					final int index = i;
-					final int end = favoriteGame.size() - 1;					
+					final int end = list.size() - 1;					
 					new Thread(){
 						@Override
 						public void run()
@@ -372,7 +398,13 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 							List<NameValuePair> data = new ArrayList<NameValuePair>();
 							NameValuePair pair3 = new BasicNameValuePair("id", gameId);
 							data.add(pair3);
-							String str = HttpUtils.doPost(Global.GAME_GETGAMEBYID, data);
+							String str = null;
+							str = HttpUtils.doPost(Global.GAME_GETGAMEBYID, data);
+							if(null == str)
+							{
+								Log.e("TAG", "Post GameById str null");
+								return;
+							}
 							//System.out.println(str);
 							try {
 								JSONObject json = new JSONObject(str);
@@ -381,9 +413,9 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 								JSONObject game = json.getJSONObject( "rowdata" );
 								Log.e(TAG, "gameId: "+data.get(0).getValue());				
 								Log.e(TAG, "url: "+game.getString("image"));
-								FavoriteGame fGame = favoriteGame.get(index);
-								fGame.setUrl(game.getString("image"));
-								list.add(fGame);
+								String url = game.getString("image");
+								list.get(index).setUrl(url);
+								//list.get(index).setBitmap(returnBitMap(url));
 								if(index == end)
 									handler.sendEmptyMessage(1);
 								
@@ -397,6 +429,29 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 			}
 		}.start();
 	}
+	
+	public Bitmap returnBitMap(String url) { 
+    	URL myFileUrl = null; 
+    	Bitmap bitmap = null; 
+    	try { 
+    		myFileUrl = new URL(url); 
+    	} catch (MalformedURLException e) {
+    		Log.e("TAG", "returnBitMap URL error");
+    		e.printStackTrace(); 
+    	} 
+    	try { 
+	    	HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection(); 
+	    	conn.setDoInput(true); 
+	    	conn.connect(); 
+	    	InputStream is = conn.getInputStream(); 
+	    	bitmap = BitmapFactory.decodeStream(is); 
+	    	is.close(); 
+    	} catch (IOException e) { 
+    		Log.e("TAG", "returnBitMap bitmap null error");
+    		e.printStackTrace(); 
+    	} 
+    	return bitmap; 
+    } 
 	
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
