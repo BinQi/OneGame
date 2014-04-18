@@ -42,6 +42,7 @@
         <activity
             android:name="com.sungy.onegame.activity.DetailActivity"
             android:label="@string/title_activity_detail" 
+            android:theme="@android:style/Theme.Light"
             android:screenOrientation="portrait">
         </activity>
         <activity

@@ -41,6 +41,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
@@ -123,6 +124,15 @@ public class DetailActivity extends Activity implements OnClickListener{
 	//是否点赞
 	private int isPraise = 0; 	//1代表有，2代表没有，0代表未初始化
 	private String praiseId = "0";
+	
+	//顶部
+	private RelativeLayout header = null;
+	//底部
+	private LinearLayout footer = null;
+	//记录点击时的位置
+	private float touchY = 0f;
+	//是否已经隐藏顶部和底部
+	private boolean isHidedHeadFoot = false;
 	
 	//handler
 	public final int REFLASH_GALLERY = 1;
@@ -334,6 +344,9 @@ public class DetailActivity extends Activity implements OnClickListener{
 
 	private void initView() {
 		inflater = LayoutInflater.from(this);
+		
+		header = (RelativeLayout)findViewById(R.id.detail_header);
+		footer = (LinearLayout)findViewById(R.id.detail_footer);
 		
 		container = (ScrollView)findViewById(R.id.container);
 		container.setOnTouchListener(scrollOnTouchListener);
@@ -608,7 +621,7 @@ public class DetailActivity extends Activity implements OnClickListener{
         ViewGroup.LayoutParams params = listView.getLayoutParams();  
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         //增加一些距离作为缓冲
-        params.height += getWindowManager().getDefaultDisplay().getHeight()/4;
+        params.height += getWindowManager().getDefaultDisplay().getHeight()/8;
         listView.setLayoutParams(params); 
         Log.e(TAG, "高度计算6");
         commentListHeight = params.height;
@@ -1002,10 +1015,29 @@ public class DetailActivity extends Activity implements OnClickListener{
 		
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
+			if(event.getAction() == MotionEvent.ACTION_DOWN){
+				touchY = event.getY();
+			}
 			if(event.getAction() == MotionEvent.ACTION_MOVE){
 				int scrollY=v.getScrollY();
                 int height=v.getHeight();
                 int scrollViewMeasuredHeight=container.getChildAt(0).getMeasuredHeight();
+                float y = event.getY();
+                Log.d(TAG, touchY + "   "+ y+"  "+isHidedHeadFoot);
+                if(!isHidedHeadFoot){
+                	//判断是向下还是向上
+	                if((y-touchY)<= -20){	//向下
+	                	//隐藏顶底部
+	                	isHidedHeadFoot = true;
+	                	hideHeadAndFoot();
+	                }
+                }else{
+                	if((y-touchY)> 5){	//向上
+	                	//显示顶底部
+                		showHeadAndFoot();
+                		isHidedHeadFoot = false;
+	                }
+                }
                 if(scrollY==0){
                    }
                 if((scrollY+height)==scrollViewMeasuredHeight){
@@ -1029,4 +1061,20 @@ public class DetailActivity extends Activity implements OnClickListener{
 		}
 	};
 	
+	
+	//隐藏顶部和底部
+	private void hideHeadAndFoot(){
+		header.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out_top));
+		footer.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out_bottom));
+		header.setVisibility(View.GONE);
+		footer.setVisibility(View.GONE);
+	}
+	
+	//显示顶部和底部
+	private void showHeadAndFoot(){
+		header.setVisibility(View.VISIBLE);
+		footer.setVisibility(View.VISIBLE);
+		header.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_top));
+		footer.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_bottom));
+	}
 }

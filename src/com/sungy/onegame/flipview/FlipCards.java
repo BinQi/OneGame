@@ -28,9 +28,11 @@ import com.sungy.onegame.flipview.utils.AphidLog;
 import com.sungy.onegame.flipview.utils.TextureUtils;
 
 public class FlipCards {
-	private static final float ACCELERATION = 0.618f;
+//	private static final float ACCELERATION = 0.618f;
+	private static final float ACCELERATION = 2.0f;
 	private static final float TIP_SPEED = 1f;
-	private static final float MOVEMENT_RATE = 1.5f;
+//	private static final float MOVEMENT_RATE = 1.5f;
+	private static final float MOVEMENT_RATE = 2.0f;
 	private static final int MAX_TIP_ANGLE = 60;
 
 	private static final int STATE_INIT = 0;
