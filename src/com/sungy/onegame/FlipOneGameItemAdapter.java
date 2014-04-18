@@ -5,12 +5,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,6 +38,9 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private ViewHolder holder;
 	private Context mContext;
+	
+	//缓存图片
+	private Map<Integer,Bitmap> bitmaps;
 	
 	class ViewHolder{
 		TextView game_title,game_praiseNo,game_abstract,game_day;
@@ -89,6 +96,7 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 		this.headerHeight = headerHeight;
 		inflater = LayoutInflater.from(context);
 		mContext = context;
+		bitmaps = new HashMap<Integer,Bitmap>();
 	}
 
 	@Override
@@ -202,8 +210,17 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 		holder.game_image_url = SampleListFragment.gameMap.get(SampleListFragment.gameList.get(arg0).getId()).getImage();
 		//如果是本地图片，则加载
 		if(!holder.game_image_url.contains("http://")){
-			holder.game_image.setImageURI(Uri.fromFile(new File(holder.game_image_url)));
-			Log.d("Uri", Uri.fromFile(new File(holder.game_image_url)).toString());
+			//检查缓存中是否存在图片
+			if(bitmaps.containsKey(SampleListFragment.gameList.get(arg0).getId())){
+				holder.game_image.setImageBitmap(bitmaps.get(SampleListFragment.gameList.get(arg0).getId()));
+			}else{
+				Bitmap bitmap = BitmapFactory.decodeFile(holder.game_image_url);
+//				holder.game_image.setImageURI(Uri.fromFile(new File(holder.game_image_url)));
+				bitmaps.put(SampleListFragment.gameList.get(arg0).getId(), bitmap);
+				holder.game_image.setImageBitmap(bitmap);
+				bitmap = null;
+				Log.d("Uri", Uri.fromFile(new File(holder.game_image_url)).toString());
+			}
 		}
 		
 		holder.game_praise.setOnClickListener(new View.OnClickListener() {			

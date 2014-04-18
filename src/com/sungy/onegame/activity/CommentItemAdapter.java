@@ -167,6 +167,18 @@ public class CommentItemAdapter extends BaseAdapter{
 		TextView comment_user,comment_time,comment_content;
 		ImageView comment_image;
 	}
+	
+	public void destory(){
+		Iterator<Integer> it = bitmaps.keySet().iterator();
+		Bitmap bitmap = null;
+		while(it.hasNext()){
+			bitmap = bitmaps.get(it.next());
+			bitmap = null;
+		}
+		if(bitmaps != null &&	bitmaps.size() !=0){
+			bitmaps.clear();
+		}
+	}
 
 }
 

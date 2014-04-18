@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -159,15 +160,20 @@ public class DetailActivity extends Activity implements OnClickListener{
 					noComment.setVisibility(View.GONE);
 				}
 				
-				detailImage.setFocusable(true);
-				detailImage.setFocusableInTouchMode(true);
-				detailImage.requestFocus();
-				detailImage.requestFocusFromTouch();			
+				if(detailImage != null){
+					detailImage.setFocusable(true);
+					detailImage.setFocusableInTouchMode(true);
+					detailImage.requestFocus();
+					detailImage.requestFocusFromTouch();			
+				}
 				//撤出loading
-				loading.setVisibility(View.GONE);
+				if(loading != null)
+					loading.setVisibility(View.GONE);
 				
 			}else if(msg.what == RELOAD_COMMENT){			//重新加载评论数据回调
-				commentAdapter.notifyDataSetChanged();
+				Log.e("threadId-handler:", String.valueOf(Thread.currentThread().getId()));
+				if(commentAdapter != null)
+					commentAdapter.notifyDataSetChanged();
 				//如果没有数据，显示无评论提示
 				if(!setListViewHeightBaseOnChildren(detailComments)){
 					noComment.setVisibility(View.VISIBLE);
@@ -176,12 +182,16 @@ public class DetailActivity extends Activity implements OnClickListener{
 				}
 				
 			}else if(msg.what == TOPIMAGE){					//顶部图片加载
-				detailImage.setImageBitmap(BitmapFactory.decodeStream((InputStream) msg.obj));
+				if(detailImage != null){
+					detailImage.setImageBitmap(BitmapFactory.decodeStream((InputStream) msg.obj));
+				}
 				msg.obj = null;
 				
 			}else if(msg.what == SET_NEWIMAGE){
 				int loc = msg.arg1;
-				detailImageViews[loc].setImageBitmap(detailImages[loc]);
+				if(detailImageViews[loc] != null){
+					detailImageViews[loc].setImageBitmap(detailImages[loc]);
+				}
 				
 			}else if(msg.what == CANCLE_LOADINGIMAGE){		//撤出loading
 				loading.setVisibility(View.GONE);
@@ -290,6 +300,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 		params.add(new BasicNameValuePair("pageNo","1"));
 		params.add(new BasicNameValuePair("game_id",Integer.toString(SampleListFragment.gameList.get(index).getId())));
 		String str = HttpUtils.doPostWithoutStrict(Global.COMMENT_GETBYUSERID, params);
+		params = null;
 		Log.d("json", str);
 		
 		List<OneGameComment> comments = new ArrayList<OneGameComment>();
@@ -311,6 +322,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 				comment.setUser_id(jsonObj.getInt("user_id"));
 				
 				comments.add(comment);
+				comment = null;
 			} 
 
 		} catch (JSONException e) {
@@ -419,6 +431,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 							myHandler.sendEmptyMessage(COLLECTED);
 						}
 						Log.d(TAG, isCollect+"  "+isPraise);
+						json = null;
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
@@ -611,9 +624,10 @@ public class DetailActivity extends Activity implements OnClickListener{
 		final String gameurl = SampleListFragment.gameList.get(index).getDownload_url();
 		final String userimage = Global.getUserImage();
 		if (v == detailBack) {
-			destroy();
+//			destroy();
 			finish();
 			overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+			destroy();
 		}else if(v == detailPraise){	
 			//点赞
 //			if(Global.checkLogin(this)){
@@ -804,32 +818,34 @@ public class DetailActivity extends Activity implements OnClickListener{
 		if(defaultBitmap != null){
 			defaultBitmap.recycle();
 		}
+		if(commentList != null	&& commentList.size()!=0){
+			commentList.clear();
+		}
+//		for(int i = 0 ;i<detailImageViews.length;i++){
+//			if(detailImageViews[i] != null)
+//				detailImageViews[i] = null;
+//		}
+		if(loading != null){
+			loading.destory();
+		}
+		if(commentAdapter != null){
+			commentAdapter.destory();
+		}
 	}
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			destroy();
+//			destroy();
 			finish();
 			overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+			destroy();
 			return true;
 		} else {
 			return super.onKeyDown(keyCode, event);
 		}
 	}
 	
-	//重新加载评论
-	private void reloadComment(){
-		commentList = null;
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				commentList = getCommentList();	
-				myHandler.sendEmptyMessage(RELOAD_COMMENT);
-			}
-		}).start();
-	}
 	
 	//添加新评论
 	private void newComment(String useid,String usename,String commentStr,String userimage,String userid){
@@ -848,6 +864,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 		commentList = newlist;
 		commentAdapter.notifyDataSetChanged();
 		setListViewHeightBaseOnChildren(detailComments);
+		newlist = null;
 	}
 
 	private void copyList(List<OneGameComment> a , List<OneGameComment> b){
@@ -895,6 +912,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 					} 
 					copyList(commentList,newlist);
 					newlist = null;
+					Log.e("threadId-load:", String.valueOf(Thread.currentThread().getId()));
 					//通知适配器刷新
 					myHandler.sendEmptyMessage(RELOAD_COMMENT);
 					//去掉加载中图片
@@ -915,6 +933,70 @@ public class DetailActivity extends Activity implements OnClickListener{
 			}
 		}).start();
 	}
+	
+	//加载评论的后台异步task
+	private class LoadMoreCommentAsyncTask extends AsyncTask<String, Integer, List<OneGameComment>>{
+
+		@Override
+		protected List<OneGameComment> doInBackground(String... params) {
+			List <NameValuePair> param = new ArrayList<NameValuePair>();
+			param.add(new BasicNameValuePair("pageSize","10"));
+			param.add(new BasicNameValuePair("pageNo",String.valueOf(loadCommentPageNo)));
+			param.add(new BasicNameValuePair("game_id",Integer.toString(SampleListFragment.gameList.get(index).getId())));
+			String str = HttpUtils.doPostWithoutStrict(Global.COMMENT_GETBYUSERID, param);
+			
+			JSONObject json;
+			JSONArray info = new JSONArray();
+			List<OneGameComment> newlist = new ArrayList<OneGameComment>();
+			
+			try {
+				json = new JSONObject(str);
+				info = json.getJSONArray("listData");
+
+				for (int i = 0; i < info.length(); i++) {
+					JSONObject jsonObj = ((JSONObject) info.opt(i));
+
+					OneGameComment comment = new OneGameComment();
+					comment.setUser_name(jsonObj.getString("user_name"));
+					comment.setComment_time(jsonObj.getString("comment_time"));
+					comment.setComment(jsonObj.getString("comment"));
+					comment.setUser_image(jsonObj.getString("user_image"));
+					comment.setUser_id(jsonObj.getInt("user_id"));
+					// 添加新评论到ListView
+					newlist.add(comment);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+			return newlist;
+		}
+
+		@Override
+		protected void onPostExecute(List<OneGameComment> result) {
+			super.onPostExecute(result);
+			
+			copyList(commentList,result);
+			Log.e("threadId-load:", String.valueOf(Thread.currentThread().getId()));
+			//通知适配器刷新
+			myHandler.sendEmptyMessage(RELOAD_COMMENT);
+			//去掉加载中图片
+			myHandler.sendEmptyMessage(CANCLE_LOADINGIMAGE);
+			//若无数据加载，则提醒
+			if(result.size()==0)
+				myHandler.sendEmptyMessage(LOAD_COMPLEMENT);
+			
+			//如果已经没有数据可加载，关闭加载评论功能
+			if(result.size()!=0){
+				isLoadingComment = false;
+			}
+			
+			result = null;
+		}
+		
+		
+
+	};
 
 	private OnTouchListener scrollOnTouchListener = new OnTouchListener() {
 		
@@ -936,25 +1018,13 @@ public class DetailActivity extends Activity implements OnClickListener{
 	   	                	//显示加载图片
 	   	                	loading.setVisibility(View.VISIBLE);
 	   	                	//加载数据
-	   	                	loadMoreComment();
+//	   	                	loadMoreComment();
+	   	                	//用LoadMoreCommentAsyncTask取代上面那个方法
+	   	                	LoadMoreCommentAsyncTask task = new LoadMoreCommentAsyncTask();
+	   	                	task.execute("");
 	                   	}
                    }
 			}
-//			if(event.getAction() == MotionEvent.ACTION_UP){
-//				container.measure(0, 0);
-//				Log.e(TAG+"onTouch", v.getScrollY()+"    "+v.getMeasuredHeight()+"    "+v.getHeight()+"    "+ ((ViewGroup) v).getChildAt(0).getMeasuredHeight());
-//				  // 判断滚动到底部
-//                if (container.getScrollY() >= container.getMeasuredHeight()) {
-//                	if(!isLoadingComment){
-//                		isLoadingComment = true;
-//	                	loadCommentPageNo++;
-//	                	//显示加载图片
-//	                	loading.setVisibility(View.VISIBLE);
-//	                	//加载数据
-//	                	loadMoreComment();
-//                	}
-//                }
-//			}
 			return false;
 		}
 	};
