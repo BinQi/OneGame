@@ -106,9 +106,9 @@ public class MainActivity extends FragmentActivity {
         handler.sendMessageDelayed(msg, SPLASHTIME);  
         
         //网络是否可用判断
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(connectionReceiver, intentFilter);
+        //IntentFilter intentFilter = new IntentFilter();
+        //intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        //registerReceiver(connectionReceiver, intentFilter);
 	}
 
 	public void showLeft() {

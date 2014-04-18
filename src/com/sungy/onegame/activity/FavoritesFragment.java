@@ -82,22 +82,22 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 			collect_id = cid;
 			this.id = id;
 			this.datetime = datetime;
-			//bitmap = null;
+			bitmap = null;
 		}
 		
 		public void setUrl(String url){
 			this.url = url;
 		}
 		
-		//public void setBitmap(Bitmap bitmap){
-		//	this.bitmap = bitmap;
-		//}
+		public void setBitmap(Bitmap bitmap){
+			this.bitmap = Bitmap.createBitmap(bitmap);
+		}
 		
 		public String collect_id;
 		public String id;
 		public String url;
 		public Date datetime;
-		//public Bitmap bitmap;
+		public Bitmap bitmap;
 	}
 	
 	@Override

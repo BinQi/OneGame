@@ -33,6 +33,7 @@ public class MyAdapter extends BaseAdapter{
     private LayoutInflater inflater = null;
     private int count = 0;
     private Bitmap bitMap;
+    private Boolean ifcontinue;
     
     public MyAdapter(ArrayList<FavoriteGame> list, Context context) {
         this.context = context;
@@ -67,6 +68,7 @@ public class MyAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+    	Log.e("TAG","MyAdapter getViewwwwwwwwwwwwwwwwww");
         ViewHolder holder = null;
         if (convertView == null) {
          
@@ -101,25 +103,37 @@ public class MyAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
 
-      
+        ifcontinue = false;
         final int index = position;
         new Thread()
         {
         	@Override
 			public void run()
         	{
-        		bitMap = returnBitMap(list.get(index).url);
+        		String url = list.get(index).url;
+        		if(null == url)
+        			bitMap = list.get(index).bitmap;
+        		else {
+        			bitMap = returnBitMap(url);
+        			list.get(index).setBitmap(bitMap);
+        		}
+        		ifcontinue = true;
         	}
         }.start();
-        while(null == bitMap){}
-        holder.iv.setImageBitmap(bitMap);
+        while(!ifcontinue){}
+        if(bitMap != null)
+        	holder.iv.setImageBitmap(bitMap);
+        else
+        	holder.iv.setImageResource(R.drawable.defaultno);
         bitMap = null;
+        ifcontinue = false;
         initData();
         holder.cb.setChecked(getIsSelected().get(position));
         return convertView;
     }
     
-    public Bitmap returnBitMap(String url) { 
+    public synchronized Bitmap returnBitMap(String url) { 
+    	//Log.e("TAG", "URL: "+url);
     	URL myFileUrl = null; 
     	Bitmap bitmap = null; 
     	try { 
@@ -129,8 +143,10 @@ public class MyAdapter extends BaseAdapter{
     		e.printStackTrace(); 
     	} 
     	try { 
-    		if(myFileUrl == null)
-    			Log.e("TAG", "nullllllllllllllllllllllllllllll");
+    		if(myFileUrl == null){
+    			//Log.e("TAG", "nullllllllllllllllllllllllllllll");
+    			return null;
+    		}
 	    	HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection(); 
 	    	conn.setDoInput(true); 
 	    	conn.connect(); 
