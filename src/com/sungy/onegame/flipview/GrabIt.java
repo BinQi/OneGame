@@ -41,4 +41,12 @@ public class GrabIt {
 			return null;
 		}
 	}
+	
+	public static Bitmap takeScreenshot2() {
+			Bitmap.Config config = Bitmap.Config.ARGB_8888;
+			Bitmap bitmap = Bitmap.createBitmap(100, 100, config);
+			Canvas canvas = new Canvas(bitmap);
+
+			return bitmap;
+	}
 }

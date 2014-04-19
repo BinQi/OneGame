@@ -64,6 +64,7 @@ public class ViewDualCards {
 			screenshot = GrabIt.takeScreenshot(view);
 		} else {
 			UI.recycleBitmap(screenshot);
+			screenshot = GrabIt.takeScreenshot2();
 		}
 		return true;
 	}

@@ -83,48 +83,52 @@
             </LinearLayout>
         </ScrollView>
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:background="#f3f2f1" >
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/detail_footer"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#f3f2f1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
 
-            <ImageView
-                android:id="@+id/detail_share"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="5dp"
-                android:src="@drawable/detail_icon_share_pressed" />
+        <ImageView
+            android:id="@+id/detail_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:src="@drawable/detail_icon_share_pressed" />
 
-            <ImageView
-                android:id="@+id/detail_collect"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="5dp"
-                android:src="@drawable/detail_icon_fav_normal" />
+        <ImageView
+            android:id="@+id/detail_collect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:src="@drawable/detail_icon_fav_normal" />
 
-            <ImageView
-                android:id="@+id/detail_comment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="5dp"
-                android:src="@drawable/detail_comment_normal" />
+        <ImageView
+            android:id="@+id/detail_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:src="@drawable/detail_comment_normal" />
 
-            <ImageView
-                android:id="@+id/detail_download"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="5dp"
-                android:src="@drawable/detail_icon_download_normal" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/detail_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:src="@drawable/detail_icon_download_normal" />
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/detail_header"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:layout_alignParentTop="true"
