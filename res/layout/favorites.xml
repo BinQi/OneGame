@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
+<RelativeLayout 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="match_parent" 
     android:layout_height="match_parent" 
     android:background="@drawable/bg" 
     android:orientation="vertical">
  	<LinearLayout 
+ 	    android:id="@+id/favhead"
  	    android:layout_width="fill_parent" 
  	    android:layout_height="wrap_content" 
  	    android:padding="7dip">
@@ -37,13 +38,15 @@
 
   	<ListView 
   	    android:id="@+id/favorites_list" 
+  	    android:layout_below="@id/favhead"
   	    android:layout_width="match_parent" 
-  	    android:layout_height="wrap_content" /> 
+  	    android:layout_height="match_parent" /> 
   	
   	<RelativeLayout android:id="@+id/fedit"
   	    android:visibility="invisible"
+  	    android:layout_alignParentBottom="true"
   	    android:layout_width="match_parent"
-  	    android:layout_height="match_parent"> 
+  	    android:layout_height="wrap_content"> 
 	  	<Button android:id="@+id/fdelete"
 	  	    android:layout_centerHorizontal="true"
 	  	    android:layout_marginRight="10dip"
@@ -59,4 +62,4 @@
 	  	    android:text="取消" />
   	</RelativeLayout>
 
-  </LinearLayout>
+</RelativeLayout>

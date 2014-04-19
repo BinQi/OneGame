@@ -26,6 +26,7 @@ import com.sungy.onegame.mclass.*;
 import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -68,7 +69,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	private Button deleteButton, cancelButton;
 	private static RelativeLayout buttonRL;
 	private Toast toast;
-	
+	//private ProgressDialog progressDialog;
 	private final String TAG = "FavoritesFragment";
 	private String userid;
 	private static boolean editmode = false;
@@ -114,6 +115,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		//userid
 		userid = Global.getUserId();
 		
+		//progressDialog = ProgressDialog.show(getActivity(), "加载中", "请稍后,正在加载...");
 		View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.progressbar_toast, null);
 		progressBar = (ProgressBar)toastRoot.findViewById(R.id.fprogressBar);
 		progressBar.setVisibility(View.VISIBLE);
@@ -299,9 +301,9 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
     private void update()
     {
     	Log.d(TAG, "Update");
-    	mAdapter.initData();
+    	//mAdapter.initData();
     	mAdapter.notifyDataSetChanged();
-    	toast.cancel();
+    	toast.cancel();//progressDialog.dismiss();
     	Log.d(TAG, "Update Completed");
     }
     
@@ -381,7 +383,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 					}
 					
 				}
-				
+				mAdapter.initData();
 				/*Log.e(TAG, "After sort:");
 				for(FavoriteGame i : favoriteGame)
 					Log.e(TAG, i.datetime.toString());*/
@@ -389,8 +391,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 				for(int i = 0; i<list.size(); i++)
 				{
 					final String gameId = list.get(i).id;
-					final int index = i;
-					final int end = list.size() - 1;					
+					final int index = i;					
 					new Thread(){
 						@Override
 						public void run()
@@ -409,15 +410,16 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 							try {
 								JSONObject json = new JSONObject(str);
 								String message = json.getString( "message" );
-								Log.d(TAG, "message: "+message);			
-								JSONObject game = json.getJSONObject( "rowdata" );
-								Log.e(TAG, "gameId: "+data.get(0).getValue());				
-								Log.e(TAG, "url: "+game.getString("image"));
-								String url = game.getString("image");
-								list.get(index).setUrl(url);
+								Log.d(TAG, "message: "+message);
+								if(message.equals("success")) {
+									JSONObject game = json.getJSONObject( "rowdata" );
+									Log.e(TAG, "gameId: "+data.get(0).getValue());				
+									Log.e(TAG, "url: "+game.getString("image"));
+									String url = game.getString("image");
+									list.get(index).setUrl(url);
+								}
 								//list.get(index).setBitmap(returnBitMap(url));
-								if(index == end)
-									handler.sendEmptyMessage(1);
+								handler.sendEmptyMessage(1);
 								
 							} catch (JSONException e) {
 								Log.e(TAG, "getUrlERROR");
