@@ -25,6 +25,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.sungy.onegame.R;
 
@@ -83,6 +84,7 @@ public class MyAdapter extends BaseAdapter{
             convertView = inflater.inflate(R.layout.favorites_list_item, null);
             holder.iv = (ImageView) convertView.findViewById(R.id.favorites_list_image);
             holder.cb = (CheckBox) convertView.findViewById(R.id.favorites_checkbox);
+            holder.tv = (TextView) convertView.findViewById(R.id.favorites_text);
             holder.index = count;
             initData();
             holder.cb.setOnCheckedChangeListener(new OnCheckedChangeListener(){
@@ -106,6 +108,7 @@ public class MyAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
 
+        holder.tv.setText(list.get(position).game_name);
         ifcontinue = false;
         final int index = position;
         new Thread()

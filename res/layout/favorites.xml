@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="match_parent" 
     android:layout_height="match_parent" 
-    android:background="@drawable/bg" 
+    android:background="@drawable/bg_blue2" 
     android:orientation="vertical">
  	<LinearLayout 
  	    android:id="@+id/favhead"
@@ -35,30 +35,44 @@
   		    />
   		
   	</LinearLayout>
-
+	<!-- 
   	<ListView 
   	    android:id="@+id/favorites_list" 
   	    android:layout_below="@id/favhead"
   	    android:layout_width="match_parent" 
   	    android:layout_height="match_parent" /> 
-  	
+  	 -->
+  	 <GridView android:id="@+id/favorites_list" 
+  	    android:layout_below="@id/favhead"
+  	    android:layout_width="match_parent" 
+  	    android:layout_height="match_parent"
+  	    android:numColumns="3"  
+	    android:verticalSpacing="10dp"  
+	    android:horizontalSpacing="10dp"  
+	    android:columnWidth="90dp"  
+	    android:stretchMode="columnWidth"  
+	    android:gravity="center" />
+  	 
   	<RelativeLayout android:id="@+id/fedit"
-  	    android:visibility="invisible"
   	    android:layout_alignParentBottom="true"
+  	    android:background="@drawable/bg_bottom"
   	    android:layout_width="match_parent"
-  	    android:layout_height="wrap_content"> 
+  	    android:layout_height="80dip"> 
 	  	<Button android:id="@+id/fdelete"
-	  	    android:layout_centerHorizontal="true"
-	  	    android:layout_marginRight="10dip"
-	  	    android:background="@drawable/button"
-	  	    android:layout_width="wrap_content"
-	  	    android:layout_height="wrap_content"
+	  	    android:layout_alignParentLeft="true"	
+	  	    android:layout_alignParentBottom="true"
+	  	    android:layout_marginLeft="50dip"  	
+	  	    android:background="@drawable/delete"
+	  	    android:layout_width="50dip"
+	  	    android:layout_height="50dip"
 	  	    android:text="删除" />
 	  	<Button android:id="@+id/fcancel"
-	  	    android:layout_toRightOf="@id/fdelete"
-	  	    android:background="@drawable/button"
-	  	    android:layout_width="wrap_content"
-	  	    android:layout_height="wrap_content"
+	  	    android:layout_alignParentRight="true"
+	  	    android:layout_alignParentBottom="true"
+	  	    android:layout_marginRight="50dip"
+	  	    android:background="@drawable/edit"
+	  	    android:layout_width="50dip"
+	  	    android:layout_height="50dip"
 	  	    android:text="取消" />
   	</RelativeLayout>
 

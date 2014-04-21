@@ -50,6 +50,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -62,7 +63,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class FavoritesFragment extends Fragment implements FragmentInterface{
-	static ListView favoritesList;
+	private GridView favoritesList;
 	private MyAdapter mAdapter;
 	private Switch switcher;
 	private ProgressBar progressBar;
@@ -79,26 +80,28 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	//private List<NameValuePair> data = new ArrayList<NameValuePair>();
 	
 	class FavoriteGame {
-		public FavoriteGame(String id, String cid, Date datetime){
+		public FavoriteGame(String id, String cid, Date datetime, String gname){
 			collect_id = cid;
+			game_name = gname;
 			this.id = id;
 			this.datetime = datetime;
-			bitmap = null;
+			//bitmap = null;
 		}
 		
 		public void setUrl(String url){
 			this.url = url;
 		}
 		
-		public void setBitmap(Bitmap bitmap){
-			this.bitmap = Bitmap.createBitmap(bitmap);
-		}
+		//public void setBitmap(Bitmap bitmap){
+		//	this.bitmap = Bitmap.createBitmap(bitmap);
+		//}
 		
 		public String collect_id;
 		public String id;
 		public String url;
+		public String game_name;
 		public Date datetime;
-		public Bitmap bitmap;
+		//public Bitmap bitmap;
 	}
 	
 	@Override
@@ -205,7 +208,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 					}
 				}
 				mAdapter.initData();
-				FavoritesFragment.handl_visible.sendEmptyMessage(0);
+				//FavoritesFragment.handl_visible.sendEmptyMessage(0);
 			}
 		});
 		
@@ -224,7 +227,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
             }  
         });
         
-		favoritesList = (ListView)view.findViewById(R.id.favorites_list);
+		favoritesList = (GridView)view.findViewById(R.id.favorites_list);
 		handl_getdata.sendEmptyMessage(1);
 		mAdapter = new MyAdapter(list, getActivity());
 		favoritesList.setAdapter(mAdapter);
@@ -361,11 +364,12 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	            	return;
 				for(int i = 0; i<listData.length(); i++)
 				{
-					String cid, tempid, tempdate;
+					String cid, tempid, tempdate, gname;
 					try{
 						cid = listData.getJSONObject(i).getString("id");
 						tempid = listData.getJSONObject(i).getString("game_id");
 						tempdate = listData.getJSONObject(i).getString("collect_time");
+						gname = listData.getJSONObject(i).getString("game_name");
 						String pattern = "yyy-MM-dd HH:mm:ss"; //首先定义时间格式
 				        SimpleDateFormat format = new SimpleDateFormat(pattern);
 				        Date datetime = new Date();
@@ -376,7 +380,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 				        }
 				        
 				        Log.e(TAG, "game_id: "+tempid+" "+tempdate);
-						list.add(new FavoriteGame(tempid, cid, datetime));
+						list.add(new FavoriteGame(tempid, cid, datetime, gname));
 					} catch (JSONException e){
 						Log.e(TAG, "ERROR");
 						e.printStackTrace();
