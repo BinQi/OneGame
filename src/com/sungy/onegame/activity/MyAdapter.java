@@ -20,10 +20,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,10 +43,12 @@ public class MyAdapter extends BaseAdapter{
     private int count = 0;
     private Bitmap bitMap;
     private Boolean ifcontinue;
+    private GridView GV;
     
-    public MyAdapter(ArrayList<FavoriteGame> list, Context context) {
+    public MyAdapter(ArrayList<FavoriteGame> list, GridView gv, Context context) {
         this.context = context;
         this.list = list;
+        this.GV = gv;
         inflater = LayoutInflater.from(context);
         isSelected = new HashMap<Integer, Boolean>();
         
@@ -92,7 +96,7 @@ public class MyAdapter extends BaseAdapter{
             	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
             		View v = (View)buttonView.getParent();
             		ViewHolder h = (ViewHolder)v.getTag();
-            		FavoritesFragment.handl_visible.sendEmptyMessage(1);
+            		//FavoritesFragment.handl_visible.sendEmptyMessage(1);
             		Log.e("MyAdapter", "aaaaaaaaa");            		
             		isSelected.put(h.index, h.cb.isChecked());
             		Log.d("MyAdapter", "item"+((Integer)h.index).toString()+" is click");
@@ -130,7 +134,10 @@ public class MyAdapter extends BaseAdapter{
         	holder.iv.setImageResource(R.drawable.defaultno);
         bitMap = null;
         ifcontinue = false;
-   
+        
+        AbsListView.LayoutParams param = new AbsListView.LayoutParams(240,300);
+        convertView.setLayoutParams(param);
+
         holder.cb.setChecked(getIsSelected().get(position));
         return convertView;
     }

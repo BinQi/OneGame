@@ -46,10 +46,12 @@
   	    android:layout_below="@id/favhead"
   	    android:layout_width="match_parent" 
   	    android:layout_height="match_parent"
-  	    android:numColumns="3"  
-	    android:verticalSpacing="10dp"  
-	    android:horizontalSpacing="10dp"  
-	    android:columnWidth="90dp"  
+  	    android:numColumns="auto_fit"  
+	    android:verticalSpacing="5dp"  
+	    android:horizontalSpacing="1dp"  
+	    android:columnWidth="90dp" 
+	    android:layout_marginLeft="10dip"
+	    android:layout_marginRight="10dip" 
 	    android:stretchMode="columnWidth"  
 	    android:gravity="center" />
   	 
@@ -62,10 +64,10 @@
 	  	    android:layout_alignParentLeft="true"	
 	  	    android:layout_alignParentBottom="true"
 	  	    android:layout_marginLeft="50dip"  	
-	  	    android:background="@drawable/delete"
+	  	    android:background="@drawable/clip"
 	  	    android:layout_width="50dip"
 	  	    android:layout_height="50dip"
-	  	    android:text="删除" />
+	  	    android:text="限免信息推送" />
 	  	<Button android:id="@+id/fcancel"
 	  	    android:layout_alignParentRight="true"
 	  	    android:layout_alignParentBottom="true"
@@ -73,7 +75,7 @@
 	  	    android:background="@drawable/edit"
 	  	    android:layout_width="50dip"
 	  	    android:layout_height="50dip"
-	  	    android:text="取消" />
+	  	    android:text="编辑" />
   	</RelativeLayout>
 
 </RelativeLayout>

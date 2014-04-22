@@ -74,6 +74,8 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	private final String TAG = "FavoritesFragment";
 	private String userid;
 	private static boolean editmode = false;
+	private boolean ifdelete = false;
+	private static boolean ifcancel = false;
 	private boolean deletefinish = true;
 	
 	private ArrayList<FavoriteGame> list = new ArrayList<FavoriteGame>();
@@ -136,79 +138,105 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		deleteButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
-				if(!deletefinish)
-					return;
-				else
-					deletefinish = false;
-				NameValuePair pair0, pair1;
-				String gameId, cid;
-				boolean delete_success = true;
-				ArrayList<FavoriteGame> sub = new ArrayList<FavoriteGame>();
-				ArrayList<FavoriteGame> sub1 = new ArrayList<FavoriteGame>();
-				ArrayList<Integer> allSelected = mAdapter.getAllSelected();
-				for(int index = 0; index<allSelected.size(); index++) {
-					Integer i = allSelected.get(index);
-					sub.add(list.get(i));
-
-					gameId = list.get(i).id;
-					cid = list.get(i).collect_id;
-					pair0 = new BasicNameValuePair("id", cid);
-					pair1 = new BasicNameValuePair("game_id", gameId);
-					List<NameValuePair> data = new ArrayList<NameValuePair>();
-					data.add(pair0);
-					data.add(pair1);
-					String str = HttpUtils.doPost(Global.COLLECT_CANCLECOLLECT, data);
-					//System.out.println(str);
-					try {
-						JSONObject json = new JSONObject(str);
-						String message = json.getString( "message" );
-						if(!message.equals("success"))
-							delete_success = false;
-						Log.e(TAG, "delete Favorite game message: "+message);			
-						
-					} catch (JSONException e) {
-						Log.e(TAG, "deleteFavoriteERROR");
-						e.printStackTrace();
+				if(ifdelete) {
+					if(!deletefinish)
+						return;
+					else
+						deletefinish = false;
+					NameValuePair pair0, pair1;
+					String gameId, cid;
+					boolean delete_success = true;
+					ArrayList<FavoriteGame> sub = new ArrayList<FavoriteGame>();
+					ArrayList<FavoriteGame> sub1 = new ArrayList<FavoriteGame>();
+					ArrayList<Integer> allSelected = mAdapter.getAllSelected();
+					for(int index = 0; index<allSelected.size(); index++) {
+						Integer i = allSelected.get(index);
+						sub.add(list.get(i));
+	
+						gameId = list.get(i).id;
+						cid = list.get(i).collect_id;
+						pair0 = new BasicNameValuePair("id", cid);
+						pair1 = new BasicNameValuePair("game_id", gameId);
+						List<NameValuePair> data = new ArrayList<NameValuePair>();
+						data.add(pair0);
+						data.add(pair1);
+						String str = HttpUtils.doPost(Global.COLLECT_CANCLECOLLECT, data);
+						//System.out.println(str);
+						try {
+							JSONObject json = new JSONObject(str);
+							String message = json.getString( "message" );
+							if(!message.equals("success"))
+								delete_success = false;
+							Log.e(TAG, "delete Favorite game message: "+message);			
+							
+						} catch (JSONException e) {
+							Log.e(TAG, "deleteFavoriteERROR");
+							e.printStackTrace();
+						}
 					}
+	
+					list.removeAll(sub);
+					Log.e("xxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "+((Integer)list.size()).toString());
+					mAdapter.initData();
+			    	mAdapter.notifyDataSetChanged();
+			    	
+					View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.my_toast, null);
+					TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
+					if(delete_success)
+						tv.setText("删除成功！");
+					else
+						tv.setText("删除失败！");
+	        		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
+	        		rl.getBackground().setAlpha(50);
+			    	Toast mytoast = new Toast(getActivity());
+			    	mytoast.setView(toastRoot);
+			    	mytoast.setGravity(Gravity.CENTER, 0, 0);
+			    	mytoast.setDuration(Toast.LENGTH_SHORT);
+			    	mytoast.show();
+			    	deletefinish = true;
 				}
-
-				list.removeAll(sub);
-				Log.e("xxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "+((Integer)list.size()).toString());
-				mAdapter.initData();
-		    	mAdapter.notifyDataSetChanged();
-		    	
-				View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.my_toast, null);
-				TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
-				if(delete_success)
-					tv.setText("删除成功！");
-				else
-					tv.setText("删除失败！");
-        		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
-        		rl.getBackground().setAlpha(50);
-		    	Toast mytoast = new Toast(getActivity());
-		    	mytoast.setView(toastRoot);
-		    	mytoast.setGravity(Gravity.CENTER, 0, 0);
-		    	mytoast.setDuration(Toast.LENGTH_SHORT);
-		    	mytoast.show();
-		    	deletefinish = true;
+				else {}
 			}
 		});
 		cancelButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
 				//handler.sendEmptyMessage(1);
-				ArrayList<Integer> selectArr = mAdapter.getAllSelected();
-				for(int index = 0; index<selectArr.size(); index++){
-					Integer i = selectArr.get(index);
-					View temp = favoritesList.getChildAt(i);
-					if(temp != null)
-					{
-						ViewHolder viewHolder = (ViewHolder)temp.getTag();
-						viewHolder.cb.toggle();
+				if(ifcancel) {
+					//ArrayList<Integer> selectArr = mAdapter.getAllSelected();
+					for(int i = 0; i<mAdapter.getCount(); i++){
+						View temp = favoritesList.getChildAt(i);
+						if(temp != null) {
+							ViewHolder viewHolder = (ViewHolder)temp.getTag();
+							//viewHolder.cb.toggle();
+							viewHolder.cb.setVisibility(View.INVISIBLE);
+						}
 					}
+					editmode = false;
+					ifcancel = false;
+					ifdelete = false;
+					deleteButton.setBackgroundResource(R.drawable.clip);
+					deleteButton.setText("限免");
+					cancelButton.setText("编辑");
+					mAdapter.initData();
+					//FavoritesFragment.handl_visible.sendEmptyMessage(0);
 				}
-				mAdapter.initData();
-				//FavoritesFragment.handl_visible.sendEmptyMessage(0);
+				else {
+					for(int i = 0; i<mAdapter.getCount(); i++){
+						View temp = favoritesList.getChildAt(i);
+						if(temp != null) {
+							ViewHolder viewHolder = (ViewHolder)temp.getTag();
+							//viewHolder.cb.toggle();
+							viewHolder.cb.setVisibility(View.VISIBLE);
+						}
+					}
+					editmode = true;
+					ifcancel = true;
+					ifdelete = true;
+					deleteButton.setBackgroundResource(R.drawable.delete);
+					deleteButton.setText("删除");
+					cancelButton.setText("取消编辑");
+				}
 			}
 		});
 		
@@ -229,7 +257,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
         
 		favoritesList = (GridView)view.findViewById(R.id.favorites_list);
 		handl_getdata.sendEmptyMessage(1);
-		mAdapter = new MyAdapter(list, getActivity());
+		mAdapter = new MyAdapter(list, favoritesList, getActivity());
 		favoritesList.setAdapter(mAdapter);
 		favoritesList.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -458,6 +486,10 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
     	} 
     	return bitmap; 
     } 
+	
+	public static boolean getIfcancel() {
+		return ifcancel;
+	}
 	
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
