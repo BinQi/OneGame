@@ -27,8 +27,6 @@ import com.sungy.onegame.mclass.Global;
 import com.sungy.onegame.mclass.HttpUtils;
 
 public class FeedBackActivity extends Activity{
-	private static final String[] problemTypes = {"类型1","类型2","类型3","类型4","类型5","类型6"};
-	private Spinner spinner;
 	private EditText problem, advice;
 	private Button post;
 	private ImageView back;
@@ -48,10 +46,6 @@ public class FeedBackActivity extends Activity{
 		requestWindowFeature(Window.FEATURE_NO_TITLE); 
         setContentView(R.layout.activity_feed_back);
 //        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title); 
-			
-		spinner = (Spinner)findViewById(R.id.Spinner);
-		spinner.setPrompt("请选择");  
-		problem = (EditText)findViewById(R.id.problem);
 		advice = (EditText)findViewById(R.id.advice);
 		post = (Button)findViewById(R.id.post);
 		back = (ImageView)findViewById(R.id.back);
@@ -69,9 +63,9 @@ public class FeedBackActivity extends Activity{
             @Override  
             public void onClick(View v) {  
                 //Toast.makeText(getApplicationContext(), "谢谢你的反馈", Toast.LENGTH_SHORT).show();
-            	String problemContent = problem.getText().toString();
+            	String problemContent = null;//problem.getText().toString();
             	String adviceContent = advice.getText().toString();
-            	if(0 == problemContent.length() || 0 == adviceContent.length())
+            	if(adviceContent.isEmpty() || adviceContent.trim().isEmpty())
             	{
             		View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
             		TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
@@ -113,21 +107,6 @@ public class FeedBackActivity extends Activity{
             	}
             }  
 		});
-		//将可选内容与ArrayAdapter连接起来  
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, problemTypes);  
-          
-        //设置下拉列表的风格  
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);  
-        
-        
-        //将adapter 添加到spinner中  
-        spinner.setAdapter(adapter);  
-          
-        //添加事件Spinner事件监听    
-        spinner.setOnItemSelectedListener(new SpinnerSelectedListener());  
-        
-        //设置默认值  
-        spinner.setVisibility(View.VISIBLE);  
 	}
 	
 	//发送请求
@@ -154,16 +133,4 @@ public class FeedBackActivity extends Activity{
     		}
     	}.start();
 	}
-	
-	//使用数组形式操作  
-    class SpinnerSelectedListener implements OnItemSelectedListener{  
-  
-        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,  
-                long arg3) {
-        	pType = problemTypes[arg2];
-        }  
-  
-        public void onNothingSelected(AdapterView<?> arg0) {  
-        }  
-    }  
 }

@@ -20,7 +20,7 @@
     </style>
     
 	<style name="CustomWindowTitleBackground">
-       <item name="android:background">@drawable/banner_unit</item>
+       <item name="android:background">#ffffff</item>
 	</style>
 	<style name="head" parent="android:Theme">
        <item name="android:windowTitleSize">40dp</item>

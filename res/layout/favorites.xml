@@ -67,7 +67,7 @@
 	  	    android:background="@drawable/clip"
 	  	    android:layout_width="50dip"
 	  	    android:layout_height="50dip"
-	  	    android:text="限免信息推送" />
+	  	    android:text="限免" />
 	  	<Button android:id="@+id/fcancel"
 	  	    android:layout_alignParentRight="true"
 	  	    android:layout_alignParentBottom="true"
