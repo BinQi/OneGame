@@ -69,7 +69,7 @@ public class FeedBackActivity extends Activity{
             	{
             		View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
             		TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
-            		tv.setText("请填写完整");
+            		tv.setText("我们需要您的意见");
             		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
             		rl.getBackground().setAlpha(50);
 	            	Toast toast = new Toast(getApplicationContext());

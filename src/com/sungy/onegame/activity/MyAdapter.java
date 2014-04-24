@@ -15,6 +15,7 @@ import java.util.HashMap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,7 @@ public class MyAdapter extends BaseAdapter{
     private int count = 0;
     private Bitmap bitMap;
     private Boolean ifcontinue;
+    private Boolean downloadSuccess;
     private GridView GV;
     
     public MyAdapter(ArrayList<FavoriteGame> list, GridView gv, Context context) {
@@ -88,6 +90,7 @@ public class MyAdapter extends BaseAdapter{
             convertView = inflater.inflate(R.layout.favorites_list_item, null);
             holder.iv = (ImageView) convertView.findViewById(R.id.favorites_list_image);
             holder.cb = (CheckBox) convertView.findViewById(R.id.favorites_checkbox);
+            holder.time_tv = (TextView) convertView.findViewById(R.id.fcollect_time);
             holder.tv = (TextView) convertView.findViewById(R.id.favorites_text);
             holder.index = count;
             initData();
@@ -112,29 +115,46 @@ public class MyAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
 
+        holder.time_tv.setText(list.get(position).collect_time);
         holder.tv.setText(list.get(position).game_name);
-        ifcontinue = false;
-        final int index = position;
-        new Thread()
-        {
-        	@Override
-			public void run()
-        	{
-        		String url = null;
-        		url = list.get(index).url;
-        		if(url != null)
-        			bitMap = downloadImage(url, context);
-        		ifcontinue = true;
-        	}
-        }.start();
-        while(!ifcontinue){}
-        if(bitMap != null)
-        	holder.iv.setImageBitmap(bitMap);
+        //获取并显示游戏图片
+        String url = list.get(position).url;
+        if(url != null) {
+	        String path = FileUtil.setMkdir(context)+File.separator+url.substring(url.lastIndexOf("/")+1);
+	        File f = new File(path);
+	        if(f.exists()) {
+	        	Log.e("TAG", "File exist");
+	        	holder.iv.setImageURI(Uri.parse(path));
+	        }
+	        else {
+	        	Log.e("TAG", "File not exist");
+		        ifcontinue = false;
+		        final int index = position;
+		        new Thread()
+		        {
+		        	@Override
+					public void run()
+		        	{
+		        		String url = null;
+		        		url = list.get(index).url;
+		        		if(url != null)
+		        			downloadSuccess = downloadImage(url, context);
+		        		ifcontinue = true;
+		        	}
+		        }.start();
+		        while(!ifcontinue){}
+		        if(downloadSuccess)
+		        	holder.iv.setImageURI(Uri.parse(path));
+		        else
+		        	holder.iv.setImageResource(R.drawable.defaultno);
+		        //bitMap = null;
+		        ifcontinue = false;
+	        }
+        }
         else
         	holder.iv.setImageResource(R.drawable.defaultno);
-        bitMap = null;
-        ifcontinue = false;
         
+        //设置GridView每个item的大小
         AbsListView.LayoutParams param = new AbsListView.LayoutParams(240,300);
         convertView.setLayoutParams(param);
 
@@ -142,7 +162,7 @@ public class MyAdapter extends BaseAdapter{
         return convertView;
     }
     
-    public Bitmap downloadImage(String url,Context context) {
+    public boolean downloadImage(String url,Context context) {
 		int fileSize = 0; 
 		try {
         	URL u = new URL(url);
@@ -156,27 +176,26 @@ public class MyAdapter extends BaseAdapter{
             }else{ 
             	String path = FileUtil.setMkdir(context)+File.separator+url.substring(url.lastIndexOf("/")+1);
                 File f = new File(path);
-                if(!f.exists()) {
-                	Log.e("XXX", "downing image");
-	            	FileOutputStream fos = new FileOutputStream(path); 
-	                byte[] bytes = new byte[1024]; 
-	                int len = -1; 
-	                while((len = is.read(bytes))!=-1) 
-	                { 
-	                    fos.write(bytes, 0, len); 
-	                } 
-	                fos.close(); 
-                }
-                if(path.endsWith(".jpg")||path.endsWith(".png")||path.endsWith(".jpeg")){ 
+            	Log.e("XXX", "downing image");
+            	FileOutputStream fos = new FileOutputStream(path); 
+                byte[] bytes = new byte[1024]; 
+                int len = -1; 
+                while((len = is.read(bytes))!=-1) 
+                { 
+                    fos.write(bytes, 0, len); 
+                } 
+                fos.close(); 
+                /*if(path.endsWith(".jpg")||path.endsWith(".png")||path.endsWith(".jpeg")){ 
                     FileInputStream fis = new FileInputStream(path); 
                     return BitmapFactory.decodeStream(fis);
-                }  
-                is.close();     
+                } */ 
+                is.close();   
+                return true;
             } 
         } catch (Exception e) { 
             e.printStackTrace(); 
         }
-		return null;  
+		return false;  
 	}
     
     public Bitmap returnBitMap(String url) { 

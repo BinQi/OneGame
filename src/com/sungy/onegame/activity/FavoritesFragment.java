@@ -80,11 +80,13 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	
 	private ArrayList<FavoriteGame> list = new ArrayList<FavoriteGame>();
 	//private List<NameValuePair> data = new ArrayList<NameValuePair>();
+	private String[] MonthEnglish = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	
 	class FavoriteGame {
-		public FavoriteGame(String id, String cid, Date datetime, String gname){
+		public FavoriteGame(String id, String cid, Date datetime, String gname, String time){
 			collect_id = cid;
 			game_name = gname;
+			collect_time = time;
 			this.id = id;
 			this.datetime = datetime;
 			//bitmap = null;
@@ -102,6 +104,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		public String id;
 		public String url;
 		public String game_name;
+		public String collect_time;
 		public Date datetime;
 		//public Bitmap bitmap;
 	}
@@ -322,7 +325,6 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		    super.handleMessage(msg);
 		    switch (msg.what) {
             case 1:  
-            	Collections.sort(list, new MyComparator());
                 update();
                 break;  
             }
@@ -392,7 +394,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	            	return;
 				for(int i = 0; i<listData.length(); i++)
 				{
-					String cid, tempid, tempdate, gname;
+					String cid, tempid, tempdate, gname, collect_time;
 					try{
 						cid = listData.getJSONObject(i).getString("id");
 						tempid = listData.getJSONObject(i).getString("game_id");
@@ -406,15 +408,18 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 				        }catch(ParseException e) {
 				            e.printStackTrace();
 				        }
+				        collect_time = ((Integer)datetime.getDate()).toString() + " ";
+				        collect_time += MonthEnglish[datetime.getMonth()];
 				        
 				        Log.e(TAG, "game_id: "+tempid+" "+tempdate);
-						list.add(new FavoriteGame(tempid, cid, datetime, gname));
+						list.add(new FavoriteGame(tempid, cid, datetime, gname, collect_time));
 					} catch (JSONException e){
 						Log.e(TAG, "ERROR");
 						e.printStackTrace();
 					}
 					
 				}
+				Collections.sort(list, new MyComparator());
 				mAdapter.initData();
 				/*Log.e(TAG, "After sort:");
 				for(FavoriteGame i : favoriteGame)

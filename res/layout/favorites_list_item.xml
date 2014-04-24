@@ -5,6 +5,12 @@
     android:background="@drawable/bg_item"
     android:layout_width="fill_parent" 
     android:layout_height="fill_parent">
+    <TextView android:id="@+id/fcollect_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dip"
+        android:layout_marginLeft="15dip"
+        android:layout_alignParentLeft="true" />
   	<CheckBox 
   	    android:id="@+id/favorites_checkbox" 
   	    android:layout_margin="10dip"
