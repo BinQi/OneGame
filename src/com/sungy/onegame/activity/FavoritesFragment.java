@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.sungy.onegame.mclass.*;
+import com.sungy.onegame.view.ImageTextButton;
 
 import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
@@ -65,9 +66,9 @@ import android.widget.Toast;
 public class FavoritesFragment extends Fragment implements FragmentInterface{
 	private GridView favoritesList;
 	private MyAdapter mAdapter;
-	private Switch switcher;
+	//private Switch switcher;
 	private ProgressBar progressBar;
-	private Button deleteButton, cancelButton;
+	private ImageTextButton deleteButton, cancelButton;
 	private static RelativeLayout buttonRL;
 	private Toast toast;
 	//private ProgressDialog progressDialog;
@@ -112,14 +113,14 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.favorites, null);
-		ImageView left = (ImageView) view.findViewById(R.id.favorite_left);
+		/*ImageView left = (ImageView) view.findViewById(R.id.favorite_left);
 		left.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				//Log.d(TAG, "showLeft");
 				((MainActivity) getActivity()).showLeft();
 			}
 		});
-		
+		*/
 		//userid
 		userid = Global.getUserId();
 		
@@ -136,8 +137,12 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
     	toast.show();
     	
 		buttonRL = (RelativeLayout)view.findViewById(R.id.fedit);
-		deleteButton = (Button)view.findViewById(R.id.fdelete);
-		cancelButton = (Button)view.findViewById(R.id.fcancel);
+		deleteButton = (ImageTextButton)view.findViewById(R.id.fdelete);
+		cancelButton = (ImageTextButton)view.findViewById(R.id.fcancel);
+		deleteButton.setImgResource(R.drawable.clip);
+		deleteButton.setText("限免信息推送");
+		cancelButton.setImgResource(R.drawable.pencil);
+		cancelButton.setText("编辑");
 		deleteButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
@@ -218,8 +223,8 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 					editmode = false;
 					ifcancel = false;
 					ifdelete = false;
-					deleteButton.setBackgroundResource(R.drawable.clip);
-					deleteButton.setText("限免");
+					deleteButton.setImgResource(R.drawable.clip);
+					deleteButton.setText("限免信息推送");
 					cancelButton.setText("编辑");
 					mAdapter.initData();
 					//FavoritesFragment.handl_visible.sendEmptyMessage(0);
@@ -236,18 +241,17 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 					editmode = true;
 					ifcancel = true;
 					ifdelete = true;
-					deleteButton.setBackgroundResource(R.drawable.delete);
+					deleteButton.setImgResource(R.drawable.delete);
 					deleteButton.setText("删除");
 					cancelButton.setText("取消编辑");
 				}
 			}
 		});
 		
-		switcher = (Switch)view.findViewById(R.id.switch1);
+		/*switcher = (Switch)view.findViewById(R.id.switch1);
 		switcher.setOnCheckedChangeListener(new OnCheckedChangeListener(){
             @Override  
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {  
-                // TODO Auto-generated method stub  
                 if (isChecked) {
                 	Log.d(TAG, "state is on");
                     //state is on
@@ -256,7 +260,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
                     //state is off
                 }  
             }  
-        });
+        });*/
         
 		favoritesList = (GridView)view.findViewById(R.id.favorites_list);
 		handl_getdata.sendEmptyMessage(1);

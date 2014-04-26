@@ -115,8 +115,23 @@ public class MyAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
 
+        //设置item的背景，每列都不同背景.设置收藏时间和游戏名
+        switch(position % 3) {
+        case 0:
+        	convertView.setBackgroundResource(R.drawable.bg_item0);
+        	break;
+        case 1:
+        	convertView.setBackgroundResource(R.drawable.bg_item1);
+        	break;
+        case 2:
+        	convertView.setBackgroundResource(R.drawable.bg_item2);
+        	break;
+        default:
+        	break;
+        }
         holder.time_tv.setText(list.get(position).collect_time);
         holder.tv.setText(list.get(position).game_name);
+        
         //获取并显示游戏图片
         String url = list.get(position).url;
         if(url != null) {
