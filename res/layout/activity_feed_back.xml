@@ -88,7 +88,7 @@
   	    android:layout_marginLeft="5dp"  
 	    android:layout_marginRight="5dp"  
 	    android:layout_weight="8"  
-	    android:background="#ffffff"  
+	    android:background="@drawable/banner_unit"  
 	    android:gravity="top"  
 	    android:inputType="textMultiLine"  
 	    android:padding="5dip"  

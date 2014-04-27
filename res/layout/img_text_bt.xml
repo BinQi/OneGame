@@ -15,7 +15,7 @@
    android:id="@+id/img_bt_text"
    android:layout_width="wrap_content"
    android:layout_height="wrap_content"
-   android:layout_centerInParent="true"
+   android:layout_centerHorizontal="true"
    android:layout_below="@id/img_bt_img">
   </TextView>
   

@@ -49,7 +49,7 @@
   	    android:layout_height="match_parent"
   	    android:numColumns="3"  
 	    android:verticalSpacing="5dp"  
-	    android:horizontalSpacing="1dp"  
+	    android:horizontalSpacing="5dp"  
 	    android:columnWidth="90dp" 
 	    android:layout_marginLeft="10dip"
 	    android:layout_marginRight="10dip" 

@@ -190,8 +190,12 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 			    	
 					View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.my_toast, null);
 					TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
-					if(delete_success)
-						tv.setText("删除成功！");
+					if(delete_success) {
+						if(allSelected.size()!=0)
+							tv.setText("删除成功！");
+						else
+							tv.setText("请选择！");
+					}
 					else
 						tv.setText("删除失败！");
 	        		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);

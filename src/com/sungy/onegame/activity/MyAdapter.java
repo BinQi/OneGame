@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +48,7 @@ public class MyAdapter extends BaseAdapter{
     private Boolean ifcontinue;
     private Boolean downloadSuccess;
     private GridView GV;
+    private Typeface tf;
     
     public MyAdapter(ArrayList<FavoriteGame> list, GridView gv, Context context) {
         this.context = context;
@@ -53,7 +56,9 @@ public class MyAdapter extends BaseAdapter{
         this.GV = gv;
         inflater = LayoutInflater.from(context);
         isSelected = new HashMap<Integer, Boolean>();
-        
+        AssetManager mgr = context.getAssets();//得到AssetManager
+        tf = Typeface.createFromAsset(mgr, "fonts/font.ttf");//根据路径得到Typeface
+		
         initData();
     }
 
@@ -129,7 +134,9 @@ public class MyAdapter extends BaseAdapter{
         default:
         	break;
         }
+        holder.time_tv.setTypeface(tf);
         holder.time_tv.setText(list.get(position).collect_time);
+        holder.tv.setTypeface(tf);
         holder.tv.setText(list.get(position).game_name);
         
         //获取并显示游戏图片
@@ -170,7 +177,7 @@ public class MyAdapter extends BaseAdapter{
         	holder.iv.setImageResource(R.drawable.defaultno);
         
         //设置GridView每个item的大小
-        AbsListView.LayoutParams param = new AbsListView.LayoutParams(240,300);
+        AbsListView.LayoutParams param = new AbsListView.LayoutParams(220,300);
         convertView.setLayoutParams(param);
 
         holder.cb.setChecked(getIsSelected().get(position));
