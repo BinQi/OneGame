@@ -12,4 +12,18 @@
        android:textColor="#000"
        android:hint="在这里输入你的评论..."> 
      </EditText>
+    
+     <LinearLayout 
+         android:orientation="vertical"
+         android:layout_width="match_parent"
+         android:layout_height="35dp"
+         android:layout_marginBottom="5dp">
+         
+         <ImageView 
+             android:src="@drawable/comment_complent"
+             android:layout_width="100dp"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center"
+             />
+     </LinearLayout>
 </LinearLayout>

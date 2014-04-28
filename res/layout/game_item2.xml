@@ -48,7 +48,7 @@
 	    />
     
 
-   <LinearLayout 
+   <RelativeLayout 
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"  
@@ -64,6 +64,7 @@
         	android:clickable="true"
         	android:focusable="false"
         	android:layout_gravity="left"
+        	android:layout_alignParentLeft="true"
             />
         <TextView 
         	android:id="@+id/praiseNo"
@@ -74,6 +75,8 @@
         	android:textSize="20dp"
         	android:text="247"
         	android:layout_gravity="center"
+        	android:layout_toRightOf="@id/praise"
+        	android:layout_centerVertical="true"
         />
         <!-- 
         <TextView 
@@ -95,7 +98,7 @@
             android:columnCount="2"
             android:rowCount="2"
             android:layout_gravity="center"
-            android:layout_marginLeft="55dp"
+            android:layout_centerInParent="true"
             >
 
             <TextView
@@ -136,7 +139,7 @@
         
          
 
-    </LinearLayout>
+    </RelativeLayout>
 
     
 

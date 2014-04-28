@@ -20,10 +20,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -234,6 +236,7 @@ public class SampleListFragment extends ListFragment {
 			}
 		}).start();
 		
+		//展示侧边栏
 		iv_left.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
@@ -241,10 +244,28 @@ public class SampleListFragment extends ListFragment {
 			}
 		});
 		
+		//返回最新页
 		iv_right.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
-				
+				//模拟滑动
+//				if(flipView != null){
+//					int count = 3;
+//					int top = flipView.getTop();
+//					int bottom = flipView.getBottom();
+//					int dis = bottom - top;
+//					int i =0;
+//					for(int l = 0;l<7; l++){
+//						flipView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), 
+//								MotionEvent.ACTION_DOWN, flipView.getLeft()+5, flipView.getTop()+5, 0));
+//						for(i=0;i<count;i++){
+//							flipView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), 
+//									MotionEvent.ACTION_MOVE, flipView.getLeft()+5, top+dis/count*i, 0));
+//						}
+//						flipView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), 
+//								MotionEvent.ACTION_UP, flipView.getLeft()+5, flipView.getBottom(), 0));
+//					}
+//				}
 			}
 		});
 

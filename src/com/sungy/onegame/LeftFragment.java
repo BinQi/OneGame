@@ -26,6 +26,7 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,9 @@ public class LeftFragment extends Fragment implements Callback {
 	private Platform weibo;
 	private Context mContext;
 	private boolean isDefaultLogin = false;
+	
+	//正在登录对话框
+	private AlertDialog dialog;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -140,6 +144,7 @@ public class LeftFragment extends Fragment implements Callback {
 			}
 		});
 
+		//每日一游
 		LinearLayout oneGamePage = (LinearLayout) view
 				.findViewById(R.id.one_game);
 		oneGamePage.setOnClickListener(new View.OnClickListener() {
@@ -155,20 +160,21 @@ public class LeftFragment extends Fragment implements Callback {
 			}
 		});
 
-		LinearLayout oneResourcePage = (LinearLayout) view
-				.findViewById(R.id.one_resource);
-		oneResourcePage.setOnClickListener(new View.OnClickListener() {
+//		LinearLayout oneResourcePage = (LinearLayout) view
+//				.findViewById(R.id.one_resource);
+//		oneResourcePage.setOnClickListener(new View.OnClickListener() {
+//
+//			public void onClick(View v) {
+//				ResourceFragment resource = new ResourceFragment();
+//				FragmentTransaction ft = getActivity()
+//						.getSupportFragmentManager().beginTransaction();
+//				ft.replace(R.id.center_frame, resource);
+//				ft.commit();
+//				((MainActivity) getActivity()).showLeft();
+//			}
+//		});
 
-			public void onClick(View v) {
-				ResourceFragment resource = new ResourceFragment();
-				FragmentTransaction ft = getActivity()
-						.getSupportFragmentManager().beginTransaction();
-				ft.replace(R.id.center_frame, resource);
-				ft.commit();
-				((MainActivity) getActivity()).showLeft();
-			}
-		});
-
+		//我的收藏
 		LinearLayout oneFavoritesPage = (LinearLayout) view
 				.findViewById(R.id.one_favorite);
 		oneFavoritesPage.setOnClickListener(new View.OnClickListener() {
@@ -186,15 +192,12 @@ public class LeftFragment extends Fragment implements Callback {
 			}
 		});
 
+		//反馈
 		LinearLayout oneFeedbackPage = (LinearLayout) view
 				.findViewById(R.id.one_feedback);
 		oneFeedbackPage.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {
-				// 检查是否登录
-				if (!Global.checkLogin(getActivity())) {
-					return;
-				}
 				startActivity(new Intent(getActivity(), FeedBackActivity.class));
 			}
 		});
@@ -270,6 +273,11 @@ public class LeftFragment extends Fragment implements Callback {
 			userNameTv.setText((String) msg.obj);
 			userLoginTv.setText("退出登录");
 			tipLoginSuccess((String) msg.obj);
+			
+			//去掉正在登录对话框
+			if(dialog	!=	null){
+				dialog.dismiss();
+			}
 			break;
 		case WEIBO_Image:
 			userImage.setImageBitmap((Bitmap) msg.obj);
@@ -278,6 +286,11 @@ public class LeftFragment extends Fragment implements Callback {
 			userNameTv.setText((String) msg.obj);
 			userLoginTv.setText("退出登录");
 			tipLoginSuccess((String) msg.obj);
+			
+			//去掉正在登录对话框
+			if(dialog	!=	null){
+				dialog.dismiss();
+			}
 			break;
 		case QQ_Image:
 			userImage.setImageBitmap((Bitmap) msg.obj);
@@ -297,8 +310,8 @@ public class LeftFragment extends Fragment implements Callback {
 		}
 		if (!isDefaultLogin) {
 			new AlertDialog.Builder(context)
-					.setTitle("OneGame")
-					.setMessage("欢迎来到OneGame," + name + "!")
+					.setTitle("每日游")
+					.setMessage("欢迎来到每日游OneGame," + name + "!")
 					.setPositiveButton("确定",
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
@@ -334,15 +347,20 @@ public class LeftFragment extends Fragment implements Callback {
 				final String iconUrl = arg0.getDb().getUserIcon();
 				
 				afterLogin(name, "weibo", userId, iconUrl);
+				
 			}
 
 			@Override
 			public void onCancel(Platform arg0, int arg1) {
-
+				//去掉正在登录对话框
+				if(dialog	!=	null){
+					dialog.dismiss();
+				}
 			}
 		});
 		
 		weibo.authorize();
+		popLoadingDialog();
 	}
 
 	// 接入QQ
@@ -368,14 +386,35 @@ public class LeftFragment extends Fragment implements Callback {
 				final String iconUrl = arg0.getDb().getUserIcon();
 
 				afterLogin(name, "qq", userId, iconUrl);
+				
 			}
 
 			@Override
 			public void onCancel(Platform arg0, int arg1) {
-
+				//去掉正在登录对话框
+				if(dialog	!=	null){
+					dialog.dismiss();
+				}
 			}
 		});
 		qzone.authorize();
+		popLoadingDialog();
+	}
+	
+	//弹出加载中对话框
+	private void popLoadingDialog(){
+		Context context = mContext;
+		// 是否是其他页面登录
+		if (isFromOther) {
+			context = otherContext;
+		}
+		if (!isDefaultLogin) {
+			LayoutInflater factory = LayoutInflater.from(context);
+			View DialogView = factory.inflate(R.layout.loading_dialog, null);
+			dialog = new AlertDialog.Builder(context)
+					.setView(DialogView).show();
+		}
+		setIsFromOther(false);
 	}
 
 	// 写入全局数据

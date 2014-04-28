@@ -213,9 +213,11 @@ public class FlipCards {
 
 		switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
+				Log.d("flipView handleTouchEvent", "ACTION_DOWN");
 				lastY = event.getY();
 				return isOnTouchEvent;
 			case MotionEvent.ACTION_MOVE:
+				Log.d("flipView handleTouchEvent", "ACTION_MOVE");
 				delta = lastY - event.getY();
 				if (Math.abs(delta) > controller.getTouchSlop())
 					setState(STATE_TOUCH); //XXX: initialize views?
@@ -253,6 +255,7 @@ public class FlipCards {
 
 				return isOnTouchEvent;
 			case MotionEvent.ACTION_UP:
+				Log.d("flipView handleTouchEvent", "ACTION_UP");
 			case MotionEvent.ACTION_CANCEL:
 				if (state == STATE_TOUCH) {
 					delta = lastY - event.getY();

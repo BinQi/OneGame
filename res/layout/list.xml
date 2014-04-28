@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:orientation="horizontal" 
         android:background="@drawable/main_top1"
         android:id="@+id/header">
@@ -35,7 +35,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:src="@drawable/onegame"
+            android:src="@drawable/onegame_conew1"
             android:layout_gravity="center_vertical"
             /> 
 

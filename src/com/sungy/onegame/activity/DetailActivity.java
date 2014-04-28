@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +26,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,9 +43,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -80,7 +82,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 	private ImageView detailBack;	
 	private ImageView detailPraise;	
 	private ImageView detailImage;
-	
+	 
 	private ImageView detailShare;
 	private ImageView detailCollect;
 	private ImageView detailComment;
@@ -133,6 +135,20 @@ public class DetailActivity extends Activity implements OnClickListener{
 	private float touchY = 0f;
 	//是否已经隐藏顶部和底部
 	private boolean isHidedHeadFoot = false;
+	//是否在动画中
+	private boolean isInAnim = false;
+	//动画时间(请看anim文件夹中的动画文件)
+	private int animMillis = 2000;	
+	private Timer timer = null;
+	
+	//字体
+    private Typeface tf;
+    //字体路径
+    private String typeFaceDir = "fonts/font.ttf";
+	//星期中文
+	private final String[] WEEKS_CN = new String[]{
+			"星期日","星期一","星期二","星期三","星期四","星期五","星期六"	
+		};
 	
 	//handler
 	public final int REFLASH_GALLERY = 1;
@@ -145,6 +161,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 	public final int SET_NEWIMAGE = 8;
 	public final int CANCLE_LOADINGIMAGE = 9;
 	public final int LOAD_COMPLEMENT = 10;
+	public final int RESET_ISINANIM = 11;
 	private Handler myHandler = new Handler(){
 
 		@Override
@@ -208,6 +225,9 @@ public class DetailActivity extends Activity implements OnClickListener{
 				
 			}else if(msg.what == LOAD_COMPLEMENT){			//评论全部加载完，没有更多数据
 				ToastUtils.showDefaultToast(DetailActivity.this, "没有更多评论", Toast.LENGTH_SHORT);
+				
+			}else if(msg.what == RESET_ISINANIM){	//重设isInAnim
+				isInAnim = false;
 			}
 		}
 		
@@ -219,6 +239,10 @@ public class DetailActivity extends Activity implements OnClickListener{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_detail);
 		
+		//字体
+        AssetManager mgr = getAssets();//得到AssetManager
+        tf = Typeface.createFromAsset(mgr, typeFaceDir);//根据路径得到Typeface
+		
 		Intent i = getIntent();
 		index = i.getExtras().getInt("index");
 		initView();	
@@ -228,7 +252,7 @@ public class DetailActivity extends Activity implements OnClickListener{
 			public void run() {
 				myHandler.sendEmptyMessage(INITDATA);	
 			}
-		}, 500);
+		}, 500);	
 	}
 
 	public void share(String gameurl,final String gamename,final String gameid) {
@@ -683,32 +707,71 @@ public class DetailActivity extends Activity implements OnClickListener{
 		}else if(v == detailComment){
 			if(Global.checkLogin(this)){
 				LayoutInflater factory = LayoutInflater.from(getApplicationContext());
-				View DialogView = factory.inflate(R.layout.comment_dialog, null);
+				View DialogView = factory.inflate(R.layout.comment_layout, null);
+				//当天时间
+				Calendar c = Calendar.getInstance();
+		        int mMonth = c.get(Calendar.MONTH);//获取当前月份
+		        int mDay = c.get(Calendar.DAY_OF_MONTH);//获取当前月份的日期号码
+		        int mWeek = c.get(Calendar.DAY_OF_WEEK);
+				String showTime = "";
+				showTime = (mMonth+1)+"月"+mDay+"日	"+WEEKS_CN[mWeek-1];
+				
+				TextView time = (TextView)DialogView.findViewById(R.id.time);
+				time.setText(showTime);
+				time.setTypeface(tf);
+				
 				final TextView comment = (TextView)DialogView.findViewById(R.id.comment);
-				AlertDialog dlg = new AlertDialog.Builder(this)
-		    	.setTitle("发表评论")
+				comment.setTypeface(tf);
+				
+				final AlertDialog dlg = new AlertDialog.Builder(this)
 		    	.setView(DialogView)
-		    	.setPositiveButton("评论",
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,int whichButton) {
-										//获取评论
-										String commentStr = comment.getText().toString();
-										if(commentStr.trim().equals("")){
-											ToastUtils.showDefaultToast(getApplicationContext(), "评论不能为空", Toast.LENGTH_SHORT);
-											return;
-										}
-										comment(useid, usename, gamename, gameid,commentStr,userimage);
-										ToastUtils.showDefaultToast(getApplicationContext(), "评论成功", Toast.LENGTH_SHORT);
-										//重新加载评论
-//										reloadComment();
-										newComment(useid, usename, commentStr,userimage,useid);
-									}
-								})
+//		    	.setPositiveButton("评论",
+//								new DialogInterface.OnClickListener() {
+//									public void onClick(DialogInterface dialog,int whichButton) {
+//										//获取评论
+//										String commentStr = comment.getText().toString();
+//										if(commentStr.trim().equals("")){
+//											ToastUtils.showDefaultToast(getApplicationContext(), "评论不能为空", Toast.LENGTH_SHORT);
+//											return;
+//										}
+//										comment(useid, usename, gamename, gameid,commentStr,userimage);
+//										ToastUtils.showDefaultToast(getApplicationContext(), "评论成功", Toast.LENGTH_SHORT);
+//										//重新加载评论
+////										reloadComment();
+//										newComment(useid, usename, commentStr,userimage,useid);
+//									}
+//								})
 				.create();
 		    	dlg.show();
+		    	
+		    	//评论完成按钮
+		    	ImageView commentBtn = (ImageView) DialogView.findViewById(R.id.comment_btn);
+		    	commentBtn.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						//获取评论
+						String commentStr = comment.getText().toString();
+						if(commentStr.trim().equals("")){
+							ToastUtils.showDefaultToast(getApplicationContext(), "评论不能为空", Toast.LENGTH_SHORT);
+							return;
+						}
+						comment(useid, usename, gamename, gameid,commentStr,userimage);
+						ToastUtils.showDefaultToast(getApplicationContext(), "评论成功", Toast.LENGTH_SHORT);
+						//重新加载评论
+//						reloadComment();
+						newComment(useid, usename, commentStr,userimage,useid);
+						
+						//关闭对话框
+						dlg.dismiss();
+					}
+				});
 			}
 		}else if(v == detailDownload){
-			Toast.makeText(this, "下载完毕", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "正在跳转到下载地址...", Toast.LENGTH_SHORT).show();
+			Uri uri = Uri.parse(gameurl);    
+			Intent it = new Intent(Intent.ACTION_VIEW, uri);    
+			startActivity(it);  
 		}
 	}
 	
@@ -1017,27 +1080,22 @@ public class DetailActivity extends Activity implements OnClickListener{
 		public boolean onTouch(View v, MotionEvent event) {
 			if(event.getAction() == MotionEvent.ACTION_DOWN){
 				touchY = event.getY();
-			}
-			if(event.getAction() == MotionEvent.ACTION_MOVE){
+			}else if(event.getAction() == MotionEvent.ACTION_MOVE){
 				int scrollY=v.getScrollY();
                 int height=v.getHeight();
                 int scrollViewMeasuredHeight=container.getChildAt(0).getMeasuredHeight();
                 float y = event.getY();
                 Log.d(TAG, touchY + "   "+ y+"  "+isHidedHeadFoot);
                 if(!isHidedHeadFoot){
-                	//判断是向下还是向上
-	                if((y-touchY)<= -20){	//向下
-	                	//隐藏顶底部
-	                	isHidedHeadFoot = true;
-	                	hideHeadAndFoot();
-	                }
-                }else{
-                	if((y-touchY)> 5){	//向上
-	                	//显示顶底部
-                		showHeadAndFoot();
-                		isHidedHeadFoot = false;
-	                }
-                }
+                	if(isInAnim){
+                		hideHeadAndFootWithoutAnim();
+                		isHidedHeadFoot = true;
+                	}else{
+						// 隐藏顶底部
+						isHidedHeadFoot = true;
+						hideHeadAndFoot();
+                	}
+				}
                 if(scrollY==0){
                    }
                 if((scrollY+height)==scrollViewMeasuredHeight){
@@ -1056,7 +1114,31 @@ public class DetailActivity extends Activity implements OnClickListener{
 	   	                	task.execute("");
 	                   	}
                    }
+			}else if(event.getAction() == MotionEvent.ACTION_UP){
+				 if(isHidedHeadFoot){
+					//显示顶底部
+             		showHeadAndFoot();
+             		isHidedHeadFoot = false;
+//             		if(isInAnim	&& timer!=null){
+//             			timer.cancel();
+//             		}
+//         			isInAnim = true;
+//         			timer = new Timer();
+//         			timer.schedule(new TimerTask() {
+//						
+//						@Override
+//						public void run() {
+//							isInAnim = false;
+//						}
+//					}, animMillis);
+             		if(isInAnim){
+             			myHandler.removeMessages(RESET_ISINANIM);
+             		}
+             		isInAnim = true;
+             		myHandler.sendEmptyMessageDelayed(RESET_ISINANIM, animMillis);
+				 }
 			}
+			
 			return false;
 		}
 	};
@@ -1066,6 +1148,12 @@ public class DetailActivity extends Activity implements OnClickListener{
 	private void hideHeadAndFoot(){
 		header.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out_top));
 		footer.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out_bottom));
+		header.setVisibility(View.GONE);
+		footer.setVisibility(View.GONE);
+	}
+
+	//隐藏顶部和底部
+	private void hideHeadAndFootWithoutAnim(){
 		header.setVisibility(View.GONE);
 		footer.setVisibility(View.GONE);
 	}

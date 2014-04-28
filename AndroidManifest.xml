@@ -22,7 +22,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/logo2"
+        android:icon="@drawable/onegameicon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <provider
@@ -42,7 +42,7 @@
         <activity
             android:name="com.sungy.onegame.activity.DetailActivity"
             android:label="@string/title_activity_detail" 
-            android:theme="@android:style/Theme.Light"
+            android:theme="@style/DefaultAppTheme"
             android:screenOrientation="portrait">
         </activity>
         <activity

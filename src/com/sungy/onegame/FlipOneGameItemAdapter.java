@@ -27,6 +27,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sungy.onegame.activity.DetailActivity;
@@ -46,7 +47,8 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 		TextView game_title,game_praiseNo,game_abstract,game_day;
 		ImageView game_praise,game_image;
 		String game_image_url;
-		LinearLayout gameContainer , footer;
+		LinearLayout gameContainer;
+		RelativeLayout footer;
 		TextView date_month,date_day,date_week,date_week2;
 		
 	}
@@ -58,11 +60,11 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 	};
 	//星期中文
 	private final String[] WEEKS_CN = new String[]{
-		"星期一","星期二","星期三","星期四","星期五","星期六","星期日"	
+		"星期日","星期一","星期二","星期三","星期四","星期五","星期六"	
 	};
 	//星期英文
 	private final String[] WEEKS_EN = new String[]{
-		"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"	
+		"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"	
 	};
 	
 	//是否已经点击跳转
@@ -131,7 +133,7 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 			holder.game_image = (ImageView)arg1.findViewById(R.id.image);
 			
 			holder.gameContainer = (LinearLayout) arg1.findViewById(R.id.game_container);
-			holder.footer = (LinearLayout) arg1.findViewById(R.id.footer);
+			holder.footer = (RelativeLayout) arg1.findViewById(R.id.footer);
 			
 			holder.date_month = (TextView)arg1.findViewById(R.id.date_month);
 			holder.date_day = (TextView)arg1.findViewById(R.id.date_day);

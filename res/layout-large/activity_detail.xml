@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff"
+    android:background="#f3f2f1"
     android:orientation="vertical"
     tools:context=".DetailActivity"
     android:id="@+id/detail_layout" >
@@ -16,7 +16,6 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="40"
-            android:background="#ffffff" 
             android:id="@+id/container">
 
             <LinearLayout
@@ -88,11 +87,12 @@
     <LinearLayout
         android:id="@+id/detail_footer"
         android:layout_width="fill_parent"
-        android:layout_height="75dp"
+        android:layout_height="97.5dp"
         android:layout_alignParentBottom="true"
-        android:background="#f3f2f1"
+        android:background="@drawable/detail_footer"
         android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingTop="22.5dp" >
 
         <ImageView
             android:id="@+id/detail_share"
@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="7.5dp"
-            android:src="@drawable/detail_icon_share_pressed" />
+            android:src="@drawable/detail_share" />
 
         <ImageView
             android:id="@+id/detail_collect"
@@ -108,7 +108,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="7.5dp"
-            android:src="@drawable/detail_icon_fav_normal" />
+            android:src="@drawable/detail_favorite" />
 
         <ImageView
             android:id="@+id/detail_comment"
@@ -116,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="7.5dp"
-            android:src="@drawable/detail_comment_normal" />
+            android:src="@drawable/detail_comment" />
 
         <ImageView
             android:id="@+id/detail_download"
@@ -124,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="7.5dp"
-            android:src="@drawable/detail_icon_download_normal" />
+            android:src="@drawable/detail_download" />
     </LinearLayout>
 
     <RelativeLayout
