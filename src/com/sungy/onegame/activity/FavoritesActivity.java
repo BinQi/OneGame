@@ -27,6 +27,7 @@ import com.sungy.onegame.view.ImageTextButton;
 import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -63,7 +64,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FavoritesFragment extends Fragment implements FragmentInterface{
+public class FavoritesActivity extends Activity {
 	private GridView favoritesList;
 	private MyAdapter mAdapter;
 	//private Switch switcher;
@@ -111,8 +112,11 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 	}
 	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.favorites, null);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE); 
+		setContentView(R.layout.favorites);
+		//View view = inflater.inflate(R.layout.favorites, null);
 		/*ImageView left = (ImageView) view.findViewById(R.id.favorite_left);
 		left.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -125,20 +129,20 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		userid = Global.getUserId();
 		
 		//progressDialog = ProgressDialog.show(getActivity(), "加载中", "请稍后,正在加载...");
-		View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.progressbar_toast, null);
+		View toastRoot = getLayoutInflater().inflate(R.layout.progressbar_toast, null);
 		progressBar = (ProgressBar)toastRoot.findViewById(R.id.fprogressBar);
 		progressBar.setVisibility(View.VISIBLE);
 		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.progress_toast_layout);
 		rl.getBackground().setAlpha(0);
-    	toast = new Toast(getActivity());
+    	toast = new Toast(getApplicationContext());
     	toast.setView(toastRoot);
     	toast.setGravity(Gravity.CENTER, 0, 0);
     	toast.setDuration(Toast.LENGTH_LONG);
     	toast.show();
     	
-		buttonRL = (RelativeLayout)view.findViewById(R.id.fedit);
-		deleteButton = (ImageTextButton)view.findViewById(R.id.fdelete);
-		cancelButton = (ImageTextButton)view.findViewById(R.id.fcancel);
+		buttonRL = (RelativeLayout)findViewById(R.id.fedit);
+		deleteButton = (ImageTextButton)findViewById(R.id.fdelete);
+		cancelButton = (ImageTextButton)findViewById(R.id.fcancel);
 		deleteButton.setImgResource(R.drawable.clip);
 		deleteButton.setText("限免信息推送");
 		cancelButton.setImgResource(R.drawable.pencil);
@@ -188,7 +192,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 					mAdapter.initData();
 			    	mAdapter.notifyDataSetChanged();
 			    	
-					View toastRoot = getActivity().getLayoutInflater().inflate(R.layout.my_toast, null);
+					View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
 					TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
 					if(delete_success) {
 						if(allSelected.size()!=0)
@@ -200,7 +204,7 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 						tv.setText("删除失败！");
 	        		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
 	        		rl.getBackground().setAlpha(50);
-			    	Toast mytoast = new Toast(getActivity());
+			    	Toast mytoast = new Toast(getApplicationContext());
 			    	mytoast.setView(toastRoot);
 			    	mytoast.setGravity(Gravity.CENTER, 0, 0);
 			    	mytoast.setDuration(Toast.LENGTH_SHORT);
@@ -266,9 +270,9 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
             }  
         });*/
         
-		favoritesList = (GridView)view.findViewById(R.id.favorites_list);
+		favoritesList = (GridView)findViewById(R.id.favorites_list);
 		handl_getdata.sendEmptyMessage(1);
-		mAdapter = new MyAdapter(list, favoritesList, getActivity());
+		mAdapter = new MyAdapter(list, favoritesList, getApplicationContext());
 		favoritesList.setAdapter(mAdapter);
 		favoritesList.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -286,13 +290,12 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
             		int index = Global.getDetailList().get(id);
             		Bundle bundle = new Bundle();
             		bundle.putInt("index", index);
-            		Intent i = new Intent(getActivity(), DetailActivity.class);
+            		Intent i = new Intent(getApplicationContext(), DetailActivity.class);
             		i.putExtras(bundle);
             		startActivity(i);
             	}
             }
         });
-		return view;
 	}
 	
 	Handler handl_getdata =new Handler(){
@@ -504,20 +507,9 @@ public class FavoritesFragment extends Fragment implements FragmentInterface{
 		return ifcancel;
 	}
 	
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-	}
-
 	@Override
 	public void onBackPressed() {
-		((MainActivity) getActivity()).showLeft();
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK)
-			((MainActivity) getActivity()).showLeft();
-		return true;
+		finish();
+		overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
 	}
 }

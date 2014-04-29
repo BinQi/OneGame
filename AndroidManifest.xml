@@ -53,6 +53,12 @@
         </activity>
         
         <activity
+            android:name="com.sungy.onegame.activity.FavoritesActivity"
+            android:label="@string/title_favorites"
+            android:screenOrientation="portrait" >
+        </activity>
+        
+        <activity
             android:name="cn.sharesdk.framework.ShareSDKUIShell"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"

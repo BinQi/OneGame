@@ -353,6 +353,7 @@ containing a value of this type.
         public static final int tencentweibo=0x7f060018;
         public static final int title_activity_detail=0x7f06003d;
         public static final int title_activity_feed_back=0x7f06003e;
+        public static final int title_favorites=0x7f06003f;
         public static final int tumblr=0x7f06002f;
         public static final int twitter=0x7f06001e;
         public static final int vkontakte=0x7f060031;

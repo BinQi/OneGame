@@ -41,7 +41,7 @@ import cn.sharesdk.framework.utils.UIHandler;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
 
-import com.sungy.onegame.activity.FavoritesFragment;
+import com.sungy.onegame.activity.FavoritesActivity;
 import com.sungy.onegame.activity.FeedBackActivity;
 import com.sungy.onegame.activity.ResourceFragment;
 import com.sungy.onegame.mclass.Global;
@@ -184,11 +184,8 @@ public class LeftFragment extends Fragment implements Callback {
 				if (!Global.checkLogin(getActivity())) {
 					return;
 				}
-				FragmentTransaction ft = getActivity()
-						.getSupportFragmentManager().beginTransaction();
-				ft.replace(R.id.center_frame, new FavoritesFragment());
-				ft.commit();
-				((MainActivity) getActivity()).showLeft();
+				Intent i = new Intent(getActivity(), FavoritesActivity.class);
+				startActivity(i);
 			}
 		});
 

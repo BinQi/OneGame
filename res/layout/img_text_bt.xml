@@ -7,7 +7,7 @@
   <ImageView
    android:id="@+id/img_bt_img"
    android:layout_alignParentTop="true"
-   android:layout_width="50dip"
+   android:layout_width="70dip"
    android:layout_height="50dip"
    android:layout_centerInParent="true" />
   

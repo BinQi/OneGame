@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 import com.sungy.onegame.R;
 
-import com.sungy.onegame.activity.FavoritesFragment.FavoriteGame;
+import com.sungy.onegame.activity.FavoritesActivity.FavoriteGame;
 import com.sungy.onegame.mclass.DownLoadUtils;
 import com.sungy.onegame.mclass.FileUtil;
 

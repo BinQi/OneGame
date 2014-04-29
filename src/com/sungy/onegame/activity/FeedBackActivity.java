@@ -54,8 +54,8 @@ public class FeedBackActivity extends Activity{
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				finish();
+				overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
 			}
 		});
 		
@@ -80,7 +80,7 @@ public class FeedBackActivity extends Activity{
             	else
             	{
             		sendData(pType, problemContent, adviceContent);
-            		while(null == str){}
+            		//while(null == str){}
             		if(str != "error" && str != "exception")
             		{
             			str = null;
@@ -92,6 +92,7 @@ public class FeedBackActivity extends Activity{
 		            	toast.setGravity(Gravity.CENTER, 0, 0);
 		            	toast.show();
 		            	finish();
+		            	overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
             		}
             		else{
             			View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
@@ -132,5 +133,11 @@ public class FeedBackActivity extends Activity{
     			str = HttpUtils.doPost(Global.FEEDBACK_FEEDBACK, data);
     		}
     	}.start();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		finish();
+		overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
 	}
 }
