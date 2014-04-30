@@ -70,6 +70,17 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        
+         <activity
+            android:name="com.sungy.onegame.search.SearchActivity"
+            android:theme="@style/DefaultAppTheme"
+            android:screenOrientation="portrait" >
+       	 </activity>
+       	 <activity
+            android:name="com.sungy.onegame.activity.DetailActivityForResult"
+            android:theme="@style/DefaultAppTheme"
+            android:screenOrientation="portrait" >
+       	 </activity>
     </application>
 
 </manifest>

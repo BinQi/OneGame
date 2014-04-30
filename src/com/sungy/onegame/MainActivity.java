@@ -23,6 +23,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
@@ -50,6 +51,8 @@ public class MainActivity extends FragmentActivity {
 	private static final int ACTIVITY_OFF = 2;  
     // time in milliseconds  
     private static final long SPLASHTIME = 4000;  
+    //是否在显示启动界面
+    private boolean isShowingStarting = true;
 
   
     private Handler handler = new Handler() {  
@@ -59,6 +62,7 @@ public class MainActivity extends FragmentActivity {
 	//                SystemClock.sleep(4000);   
 	            	image.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out_left));
 	                image.setVisibility(View.GONE);  
+	                isShowingStarting = false;
 	                break;
 	            case RESET_BACKCOUNT:
 	            	timer.cancel();
@@ -204,6 +208,13 @@ public class MainActivity extends FragmentActivity {
 
 	public void setInLeft(boolean isInLeft) {
 		this.isInLeft = isInLeft;
+	}
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		if(isShowingStarting)
+			return true;
+		return super.dispatchTouchEvent(ev);
 	}
 	
 	

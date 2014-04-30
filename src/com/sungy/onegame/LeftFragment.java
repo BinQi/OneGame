@@ -409,6 +409,7 @@ public class LeftFragment extends Fragment implements Callback {
 			LayoutInflater factory = LayoutInflater.from(context);
 			View DialogView = factory.inflate(R.layout.loading_dialog, null);
 			dialog = new AlertDialog.Builder(context)
+					.setTitle("登录加载..")
 					.setView(DialogView).show();
 		}
 		setIsFromOther(false);

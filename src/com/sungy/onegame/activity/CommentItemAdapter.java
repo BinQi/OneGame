@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -29,11 +31,20 @@ public class CommentItemAdapter extends BaseAdapter{
 	private ViewHolder holder;
 	private Context mContext;
 	private Map<Integer,Bitmap> bitmaps;
+	
+	//字体
+    private Typeface tf;
+    //字体路径
+    private String typeFaceDir = "fonts/font.ttf";
 
 	CommentItemAdapter(Context c){
 		mContext = c;
 		inflater = LayoutInflater.from(c);
 		bitmaps = new HashMap<Integer,Bitmap>();
+		
+		//字体
+        AssetManager mgr = mContext.getAssets();//得到AssetManager
+        tf = Typeface.createFromAsset(mgr, typeFaceDir);//根据路径得到Typeface
 	}
 	
 	private Handler myHandler = new Handler(){
@@ -92,6 +103,11 @@ public class CommentItemAdapter extends BaseAdapter{
 		}else{
 			holder = (ViewHolder)convertView.getTag();
 		}
+		
+		//设置字体
+		holder.comment_user.setTypeface(tf);
+		holder.comment_time.setTypeface(tf);
+		holder.comment_content.setTypeface(tf);
 		
 		//时间 
 		String time = DetailActivity.commentList.get(position).getComment_time();

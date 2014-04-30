@@ -1,6 +1,8 @@
 package com.sungy.onegame.mclass;
 
-public class OneGameGame {
+import java.io.Serializable;
+
+public class OneGameGame implements Serializable{
 	private int id;
 	private String game_name;
 	private String publish_time;

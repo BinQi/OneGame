@@ -13,8 +13,10 @@ import java.util.TimerTask;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -90,6 +92,11 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 	private float dateDaySizeScale =  0.062f;
 	private float dateWeekSizeScale =  0.025f;
 	private float dateWeekScale =  0.020f;
+	
+	//字体
+    private Typeface tf;
+    //字体路径
+    private String typeFaceDir = "fonts/font.ttf";
 
 	public FlipOneGameItemAdapter(Context context,int screenHeight,int stausBarHeight,int headerHeight) {
 		Log.d("screenHeight", screenHeight + "   "+ stausBarHeight+"   "+headerHeight);
@@ -99,6 +106,10 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 		inflater = LayoutInflater.from(context);
 		mContext = context;
 		bitmaps = new HashMap<Integer,Bitmap>();
+		
+		//字体
+        AssetManager mgr = mContext.getAssets();//得到AssetManager
+        tf = Typeface.createFromAsset(mgr, typeFaceDir);//根据路径得到Typeface
 	}
 
 	@Override
@@ -177,6 +188,15 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 		lp2 = (GridLayout.LayoutParams) holder.date_week2.getLayoutParams();
 		lp2.topMargin = (int) (-height*dateWeekScale);
 		holder.date_week2.setLayoutParams(lp2);
+		
+		//设置字体
+		holder.date_day.setTypeface(tf);
+		holder.date_month.setTypeface(tf);
+		holder.date_week.setTypeface(tf);
+		holder.date_week2.setTypeface(tf);
+		holder.game_abstract.setTypeface(tf);
+		holder.game_praiseNo.setTypeface(tf);
+		holder.game_title.setTypeface(tf);
 		
 		OneGameGame game = SampleListFragment.gameList.get(arg0);
 		//显示正在加载

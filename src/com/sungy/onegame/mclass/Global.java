@@ -21,6 +21,7 @@ public class Global {
 	public static final String GAME_GETONEDAYLIST = "http://3gonegame.sinaapp.com/action.php?c=Game&a=getOneDayList";//获取从某一天开始的N条推荐
 	public static final String GAME_GETGAMEBYID = "http://3gonegame.sinaapp.com/action.php?c=Game&a=getGameById";//根据游戏id获取游戏推荐
 	public static final String GAME_GETGAMEFROMDATE = "http://3gonegame.sinaapp.com/action.php?c=Game&a=getGameFromDate";//获取当天到指定日期的所有游戏推荐
+	public static final String GAME_SEARCHGAMELIST = "http://3gonegame.sinaapp.com/action.php?c=Game&a=searchGameList";//获取与搜索值相关的游戏推荐
 	
 	//收藏
 	public static final String COLLECT_GETBYUSERID = "http://3gonegame.sinaapp.com/action.php?c=Collect&a=getByUserid";//根据用户id获取用户的N条收藏

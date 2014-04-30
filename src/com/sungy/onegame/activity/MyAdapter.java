@@ -177,8 +177,8 @@ public class MyAdapter extends BaseAdapter{
         	holder.iv.setImageResource(R.drawable.defaultno);
         
         //设置GridView每个item的大小
-        AbsListView.LayoutParams param = new AbsListView.LayoutParams(220,300);
-        convertView.setLayoutParams(param);
+        //AbsListView.LayoutParams param = new AbsListView.LayoutParams(220,300);
+        //convertView.setLayoutParams(param);
 
         holder.cb.setChecked(getIsSelected().get(position));
         return convertView;
@@ -252,7 +252,7 @@ public class MyAdapter extends BaseAdapter{
         return isSelected;
     }
     
-    public ArrayList<Integer> getAllSelected() {
+    public synchronized ArrayList<Integer> getAllSelected() {
     	ArrayList<Integer> res = new ArrayList<Integer>();
     	for(int i = 0; i<isSelected.size(); i++)
     		if(isSelected.get(i))

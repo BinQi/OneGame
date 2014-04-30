@@ -36,6 +36,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -73,6 +74,11 @@ import com.sungy.onegame.onegameprovider.OneGameColumn;
 import com.sungy.onegame.onegameprovider.OneGameProvider;
 import com.sungy.onegame.view.LoadingImageView;
 
+/**
+ * 此代码需要重构
+ * @author AS4741G
+ *
+ */
 public class DetailActivity extends Activity implements OnClickListener{
 	private final static String TAG = "DetailActivity";
 	private int index;
@@ -391,6 +397,10 @@ public class DetailActivity extends Activity implements OnClickListener{
 		detailIntruction = (LinearLayout) findViewById(R.id.detail_instruction);
 		
 		detailComments = (ListView) findViewById(R.id.detail_comments);
+		
+		//设置字体
+		noComment.setTypeface(tf);
+		detailPraiseNo.setTypeface(tf);
 		
 		Log.e(TAG, "加载部分UI完毕");
 		
@@ -725,22 +735,6 @@ public class DetailActivity extends Activity implements OnClickListener{
 				
 				final AlertDialog dlg = new AlertDialog.Builder(this)
 		    	.setView(DialogView)
-//		    	.setPositiveButton("评论",
-//								new DialogInterface.OnClickListener() {
-//									public void onClick(DialogInterface dialog,int whichButton) {
-//										//获取评论
-//										String commentStr = comment.getText().toString();
-//										if(commentStr.trim().equals("")){
-//											ToastUtils.showDefaultToast(getApplicationContext(), "评论不能为空", Toast.LENGTH_SHORT);
-//											return;
-//										}
-//										comment(useid, usename, gamename, gameid,commentStr,userimage);
-//										ToastUtils.showDefaultToast(getApplicationContext(), "评论成功", Toast.LENGTH_SHORT);
-//										//重新加载评论
-////										reloadComment();
-//										newComment(useid, usename, commentStr,userimage,useid);
-//									}
-//								})
 				.create();
 		    	dlg.show();
 		    	

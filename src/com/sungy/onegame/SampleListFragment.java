@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -12,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -46,6 +49,7 @@ import com.sungy.onegame.mclass.OneGameGame;
 import com.sungy.onegame.mclass.ToastUtils;
 import com.sungy.onegame.onegameprovider.OneGameColumn;
 import com.sungy.onegame.onegameprovider.OneGameProvider;
+import com.sungy.onegame.search.SearchActivity;
 import com.sungy.onegame.view.LoadingImageView;
 
 public class SampleListFragment extends ListFragment {
@@ -145,6 +149,8 @@ public class SampleListFragment extends ListFragment {
 	private int stausBarHeight;
 	//顶部高度
 	private int headerHeight;
+	
+	protected boolean isStartActivity = false;
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -248,24 +254,27 @@ public class SampleListFragment extends ListFragment {
 		iv_right.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
-				//模拟滑动
-//				if(flipView != null){
-//					int count = 3;
-//					int top = flipView.getTop();
-//					int bottom = flipView.getBottom();
-//					int dis = bottom - top;
-//					int i =0;
-//					for(int l = 0;l<7; l++){
-//						flipView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), 
-//								MotionEvent.ACTION_DOWN, flipView.getLeft()+5, flipView.getTop()+5, 0));
-//						for(i=0;i<count;i++){
-//							flipView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), 
-//									MotionEvent.ACTION_MOVE, flipView.getLeft()+5, top+dis/count*i, 0));
-//						}
-//						flipView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), 
-//								MotionEvent.ACTION_UP, flipView.getLeft()+5, flipView.getBottom(), 0));
-//					}
-//				}
+				//暂定为跳至搜索页
+				if(!isStartActivity){
+					isStartActivity = true;					
+					
+					//添加加载中图片
+					addLoadingImage();
+					
+					//暂定为跳至搜索页
+					Intent intent = new Intent(getActivity(),SearchActivity.class);
+					startActivity(intent);					
+					getActivity().overridePendingTransition(R.anim.zoom_in,R.anim.zoom_out);
+					//几秒后去掉加载中图片
+					new Timer(true).schedule(new TimerTask() {
+						
+						@Override
+						public void run() {
+							uiHandler.sendEmptyMessage(SampleListFragment.CANCLE_LOADINGIMAGE);
+							isStartActivity = false;
+						}
+					}, 2500);
+				}
 			}
 		});
 
@@ -666,7 +675,5 @@ public class SampleListFragment extends ListFragment {
 	public void setUiHandler(Handler uiHandler) {
 		this.uiHandler = uiHandler;
 	}
-	
-	
 
 }
