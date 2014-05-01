@@ -154,20 +154,24 @@ public class FavoritesActivity extends Activity {
 			@Override
 			public void onClick(View v){
 				if(ifdelete) {
-					if(!deletefinish)
+					if(!deletefinish) {
+						Log.e(TAG, "dddddddddd");
 						return;
+					}
 					else
 						deletefinish = false;
+					Log.e(TAG, "deleteinggggggggggggggg");
 					NameValuePair pair0, pair1;
 					String gameId, cid;
 					boolean delete_success = true;
+					int selectCount = 0;
 					ArrayList<OneGameGame> sub = new ArrayList<OneGameGame>();
-					ArrayList<OneGameGame> sub1 = new ArrayList<OneGameGame>();
-					ArrayList<Integer> allSelected = mAdapter.getAllSelected();
-					for(int index = 0; index<allSelected.size(); index++) {
-						Integer i = allSelected.get(index);
+					HashMap<Integer,Boolean> allSelected = MyAdapter.getIsSelected();
+					for(Integer i = 0; i<list.size(); i++) {	
+						if(!allSelected.get(i))
+							continue;
 						sub.add(list.get(i));
-	
+						selectCount++;
 						gameId = String.valueOf(list.get(i).getId());
 						cid = String.valueOf(list.get(i).getCollect_num());
 						pair0 = new BasicNameValuePair("id", cid);
@@ -199,7 +203,7 @@ public class FavoritesActivity extends Activity {
 					
 			    	String tv;//TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
 					if(delete_success) {
-						if(allSelected.size()!=0)
+						if(selectCount != 0)
 							tv = "删除成功！";
 						else
 							tv = "请选择！";
@@ -213,6 +217,7 @@ public class FavoritesActivity extends Activity {
 			    	mytoast.setGravity(Gravity.BOTTOM, 0, 0);
 			    	mytoast.show();
 			    	deletefinish = true;
+			    	Log.e(TAG, "delete finisheddddddd");
 				}
 				else {}
 			}
@@ -286,7 +291,7 @@ public class FavoritesActivity extends Activity {
 	                // 改变CheckBox的状态
 	                holder.cb.toggle();
 	                // 将CheckBox的选中状况记录下来
-	                MyAdapter.getIsSelected().put(arg2, holder.cb.isChecked());            
+	                //MyAdapter.getIsSelected().put(arg2, holder.cb.isChecked());            
             	}
             	else{
             		OneGameGame game = list.get(arg2);
@@ -465,7 +470,6 @@ public class FavoritesActivity extends Activity {
 							data.add(pair3);
 							String str = null;
 							str = HttpUtils.doPost(Global.GAME_GETGAMEBYID, data);
-							Log.e(TAG, str);
 							if(null == str)
 							{
 								Log.e("TAG", "Post GameById str null");
