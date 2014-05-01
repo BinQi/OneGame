@@ -67,14 +67,14 @@ public class FeedBackActivity extends Activity{
             	String adviceContent = advice.getText().toString();
             	if(adviceContent.isEmpty() || adviceContent.trim().isEmpty())
             	{
-            		View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
+            		/*View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
             		TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
             		tv.setText("我们需要您的意见");
             		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
-            		rl.getBackground().setAlpha(50);
-	            	Toast toast = new Toast(getApplicationContext());
-	            	toast.setView(toastRoot);
-	            	toast.setGravity(Gravity.CENTER, 0, 0);
+            		rl.getBackground().setAlpha(50);*/
+	            	Toast toast = Toast.makeText(getApplicationContext(), "我们需要您的意见", Toast.LENGTH_SHORT);
+	            	//toast.setView(toastRoot);
+	            	toast.setGravity(Gravity.BOTTOM, 0, 0);
 	            	toast.show();
             	}
             	else
@@ -84,25 +84,26 @@ public class FeedBackActivity extends Activity{
             		if(str != "error" && str != "exception")
             		{
             			str = null;
-		            	View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
+		            	/*View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
 		            	Toast toast = new Toast(getApplicationContext());
 		            	RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
                 		rl.getBackground().setAlpha(50);
-		            	toast.setView(toastRoot);
-		            	toast.setGravity(Gravity.CENTER, 0, 0);
+		            	toast.setView(toastRoot);*/
+            			Toast toast = Toast.makeText(getApplicationContext(), "发送成功!", Toast.LENGTH_SHORT);
+		            	toast.setGravity(Gravity.BOTTOM, 0, 0);
 		            	toast.show();
 		            	finish();
 		            	overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
             		}
             		else{
-            			View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
+            			/*View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
                 		TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
                 		tv.setText("发送失败!");
                 		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
-                		rl.getBackground().setAlpha(50);
-    	            	Toast toast = new Toast(getApplicationContext());
-    	            	toast.setView(toastRoot);
-    	            	toast.setGravity(Gravity.CENTER, 0, 0);
+                		rl.getBackground().setAlpha(50);*/
+    	            	Toast toast = Toast.makeText(getApplicationContext(), "发送失败!", Toast.LENGTH_SHORT);
+    	            	//toast.setView(toastRoot);
+    	            	toast.setGravity(Gravity.BOTTOM, 0, 0);
     	            	toast.show();
             		}
             	}

@@ -34,12 +34,12 @@ import android.widget.TextView;
 
 import com.sungy.onegame.R;
 
-import com.sungy.onegame.activity.FavoritesActivity.FavoriteGame;
 import com.sungy.onegame.mclass.DownLoadUtils;
 import com.sungy.onegame.mclass.FileUtil;
+import com.sungy.onegame.mclass.OneGameGame;
 
 public class MyAdapter extends BaseAdapter{
-    private ArrayList<FavoriteGame> list;
+    private ArrayList<OneGameGame> list;
     private static HashMap<Integer,Boolean> isSelected;
     private Context context;
     private LayoutInflater inflater = null;
@@ -50,7 +50,7 @@ public class MyAdapter extends BaseAdapter{
     private GridView GV;
     private Typeface tf;
     
-    public MyAdapter(ArrayList<FavoriteGame> list, GridView gv, Context context) {
+    public MyAdapter(ArrayList<OneGameGame> list, GridView gv, Context context) {
         this.context = context;
         this.list = list;
         this.GV = gv;
@@ -108,9 +108,9 @@ public class MyAdapter extends BaseAdapter{
             		Log.e("MyAdapter", "aaaaaaaaa");            		
             		isSelected.put(h.index, h.cb.isChecked());
             		Log.d("MyAdapter", "item"+((Integer)h.index).toString()+" is click");
-            		ArrayList<Integer> alist = getAllSelected();
+            		/*ArrayList<Integer> alist = getAllSelected();
                     for(int i : alist)
-                    	System.out.println(i);
+                    	System.out.println(i);*/
             	}
             });
             count++;
@@ -135,12 +135,12 @@ public class MyAdapter extends BaseAdapter{
         	break;
         }
         holder.time_tv.setTypeface(tf);
-        holder.time_tv.setText(list.get(position).collect_time);
+        holder.time_tv.setText(list.get(position).getCollect_time());
         holder.tv.setTypeface(tf);
-        holder.tv.setText(list.get(position).game_name);
+        holder.tv.setText(list.get(position).getGame_name());
         
         //获取并显示游戏图片
-        String url = list.get(position).url;
+        String url = list.get(position).getImage();
         if(url != null) {
 	        String path = FileUtil.setMkdir(context)+File.separator+url.substring(url.lastIndexOf("/")+1);
 	        File f = new File(path);
@@ -158,7 +158,7 @@ public class MyAdapter extends BaseAdapter{
 					public void run()
 		        	{
 		        		String url = null;
-		        		url = list.get(index).url;
+		        		url = list.get(index).getImage();
 		        		if(url != null)
 		        			downloadSuccess = downloadImage(url, context);
 		        		ifcontinue = true;
@@ -254,8 +254,9 @@ public class MyAdapter extends BaseAdapter{
     
     public synchronized ArrayList<Integer> getAllSelected() {
     	ArrayList<Integer> res = new ArrayList<Integer>();
-    	for(int i = 0; i<isSelected.size(); i++)
-    		if(isSelected.get(i))
+    	HashMap<Integer, Boolean> temp = getIsSelected();
+    	for(int i = 0; i<temp.size(); i++)
+    		if(temp.get(i))
     			res.add(i);
     	return res;
     }

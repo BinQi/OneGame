@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import com.sungy.onegame.mclass.*;
 import com.sungy.onegame.view.ImageTextButton;
+import com.sungy.onegame.view.LoadingImageView;
 
 import com.sungy.onegame.MainActivity;
 import com.sungy.onegame.R;
@@ -68,7 +69,7 @@ public class FavoritesActivity extends Activity {
 	private GridView favoritesList;
 	private MyAdapter mAdapter;
 	//private Switch switcher;
-	private ProgressBar progressBar;
+	//private ProgressBar progressBar;
 	private ImageTextButton deleteButton, cancelButton;
 	private static RelativeLayout buttonRL;
 	private Toast toast;
@@ -80,11 +81,11 @@ public class FavoritesActivity extends Activity {
 	private static boolean ifcancel = false;
 	private boolean deletefinish = true;
 	
-	private ArrayList<FavoriteGame> list = new ArrayList<FavoriteGame>();
+	private ArrayList<OneGameGame> list = new ArrayList<OneGameGame>();
 	//private List<NameValuePair> data = new ArrayList<NameValuePair>();
 	private String[] MonthEnglish = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	
-	class FavoriteGame {
+	/*class FavoriteGame {
 		public FavoriteGame(String id, String cid, Date datetime, String gname, String time){
 			collect_id = cid;
 			game_name = gname;
@@ -109,7 +110,7 @@ public class FavoritesActivity extends Activity {
 		public String collect_time;
 		public Date datetime;
 		//public Bitmap bitmap;
-	}
+	}*/
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -130,10 +131,12 @@ public class FavoritesActivity extends Activity {
 		
 		//progressDialog = ProgressDialog.show(getActivity(), "加载中", "请稍后,正在加载...");
 		View toastRoot = getLayoutInflater().inflate(R.layout.progressbar_toast, null);
-		progressBar = (ProgressBar)toastRoot.findViewById(R.id.fprogressBar);
-		progressBar.setVisibility(View.VISIBLE);
+		//progressBar = (ProgressBar)toastRoot.findViewById(R.id.fprogressBar);
+		//progressBar.setVisibility(View.VISIBLE);
+		LoadingImageView progress = new LoadingImageView(getApplicationContext());
 		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.progress_toast_layout);
 		rl.getBackground().setAlpha(0);
+		rl.addView(progress, 84, 84);
     	toast = new Toast(getApplicationContext());
     	toast.setView(toastRoot);
     	toast.setGravity(Gravity.CENTER, 0, 0);
@@ -158,15 +161,15 @@ public class FavoritesActivity extends Activity {
 					NameValuePair pair0, pair1;
 					String gameId, cid;
 					boolean delete_success = true;
-					ArrayList<FavoriteGame> sub = new ArrayList<FavoriteGame>();
-					ArrayList<FavoriteGame> sub1 = new ArrayList<FavoriteGame>();
+					ArrayList<OneGameGame> sub = new ArrayList<OneGameGame>();
+					ArrayList<OneGameGame> sub1 = new ArrayList<OneGameGame>();
 					ArrayList<Integer> allSelected = mAdapter.getAllSelected();
 					for(int index = 0; index<allSelected.size(); index++) {
 						Integer i = allSelected.get(index);
 						sub.add(list.get(i));
 	
-						gameId = list.get(i).id;
-						cid = list.get(i).collect_id;
+						gameId = String.valueOf(list.get(i).getId());
+						cid = String.valueOf(list.get(i).getCollect_num());
 						pair0 = new BasicNameValuePair("id", cid);
 						pair1 = new BasicNameValuePair("game_id", gameId);
 						List<NameValuePair> data = new ArrayList<NameValuePair>();
@@ -192,22 +195,22 @@ public class FavoritesActivity extends Activity {
 					mAdapter.initData();
 			    	mAdapter.notifyDataSetChanged();
 			    	
-					View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
-					TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
+					//View toastRoot = getLayoutInflater().inflate(R.layout.my_toast, null);
+					
+			    	String tv;//TextView tv = (TextView)toastRoot.findViewById(R.id.toast_text);
 					if(delete_success) {
 						if(allSelected.size()!=0)
-							tv.setText("删除成功！");
+							tv = "删除成功！";
 						else
-							tv.setText("请选择！");
+							tv = "请选择！";
 					}
 					else
-						tv.setText("删除失败！");
-	        		RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
-	        		rl.getBackground().setAlpha(50);
-			    	Toast mytoast = new Toast(getApplicationContext());
-			    	mytoast.setView(toastRoot);
-			    	mytoast.setGravity(Gravity.CENTER, 0, 0);
-			    	mytoast.setDuration(Toast.LENGTH_SHORT);
+						tv = "删除失败！";
+	        		//RelativeLayout rl = (RelativeLayout)toastRoot.findViewById(R.id.toast_layout);
+	        		//rl.getBackground().setAlpha(50);
+			    	Toast mytoast = Toast.makeText(getApplicationContext(), tv, Toast.LENGTH_SHORT);
+			    	//mytoast.setView(toastRoot);
+			    	mytoast.setGravity(Gravity.BOTTOM, 0, 0);
 			    	mytoast.show();
 			    	deletefinish = true;
 				}
@@ -286,11 +289,10 @@ public class FavoritesActivity extends Activity {
 	                MyAdapter.getIsSelected().put(arg2, holder.cb.isChecked());            
             	}
             	else{
-            		String id = list.get(arg2).id;
-            		int index = Global.getDetailList().get(id);
+            		OneGameGame game = list.get(arg2);
             		Bundle bundle = new Bundle();
-            		bundle.putInt("index", index);
-            		Intent i = new Intent(getApplicationContext(), DetailActivity.class);
+            		bundle.putSerializable("game", game);
+            		Intent i = new Intent(getApplicationContext(), DetailActivityForResult.class);
             		i.putExtras(bundle);
             		startActivity(i);
             	}
@@ -354,8 +356,8 @@ public class FavoritesActivity extends Activity {
     class MyComparator implements Comparator{
 		@Override
 		public int compare(Object a, Object b) {
-			Date d0 = ((FavoriteGame)a).datetime;
-			Date d1 = ((FavoriteGame)b).datetime;
+			Date d0 = ((OneGameGame)a).getDatetime();
+			Date d1 = ((OneGameGame)b).getDatetime();
 			if(d0.before(d1))
 				return 1;
 			else if(d0.after(d1))
@@ -405,12 +407,24 @@ public class FavoritesActivity extends Activity {
 	            	return;
 				for(int i = 0; i<listData.length(); i++)
 				{
-					String cid, tempid, tempdate, gname, collect_time;
+					String tempdate, gname, collect_time;
+					int cid, tempid, is_delete;
 					try{
-						cid = listData.getJSONObject(i).getString("id");
-						tempid = listData.getJSONObject(i).getString("game_id");
-						tempdate = listData.getJSONObject(i).getString("collect_time");
-						gname = listData.getJSONObject(i).getString("game_name");
+						JSONObject JObject = listData.getJSONObject(i);
+						OneGameGame aGame = new OneGameGame();
+						cid = JObject.getInt("id");
+						aGame.setCollect_num(cid);
+						
+						tempid = JObject.getInt("game_id");
+						aGame.setId(tempid);
+						
+						is_delete = JObject.getInt("is_delete");
+						aGame.setIs_delete(is_delete);
+						
+						gname = JObject.getString("game_name");
+						aGame.setGame_name(gname);
+						
+						tempdate = JObject.getString("collect_time");					
 						String pattern = "yyy-MM-dd HH:mm:ss"; //首先定义时间格式
 				        SimpleDateFormat format = new SimpleDateFormat(pattern);
 				        Date datetime = new Date();
@@ -421,9 +435,11 @@ public class FavoritesActivity extends Activity {
 				        }
 				        collect_time = ((Integer)datetime.getDate()).toString() + " ";
 				        collect_time += MonthEnglish[datetime.getMonth()];
+				        aGame.setDatetime(datetime);
+				        aGame.setCollect_time(collect_time);
 				        
 				        Log.e(TAG, "game_id: "+tempid+" "+tempdate);
-						list.add(new FavoriteGame(tempid, cid, datetime, gname, collect_time));
+						list.add(aGame);
 					} catch (JSONException e){
 						Log.e(TAG, "ERROR");
 						e.printStackTrace();
@@ -438,7 +454,7 @@ public class FavoritesActivity extends Activity {
 				//获取游戏图片url
 				for(int i = 0; i<list.size(); i++)
 				{
-					final String gameId = list.get(i).id;
+					final String gameId = String.valueOf(list.get(i).getId());
 					final int index = i;					
 					new Thread(){
 						@Override
@@ -449,6 +465,7 @@ public class FavoritesActivity extends Activity {
 							data.add(pair3);
 							String str = null;
 							str = HttpUtils.doPost(Global.GAME_GETGAMEBYID, data);
+							Log.e(TAG, str);
 							if(null == str)
 							{
 								Log.e("TAG", "Post GameById str null");
@@ -464,7 +481,13 @@ public class FavoritesActivity extends Activity {
 									Log.e(TAG, "gameId: "+data.get(0).getValue());				
 									Log.e(TAG, "url: "+game.getString("image"));
 									String url = game.getString("image");
-									list.get(index).setUrl(url);
+									list.get(index).setImage(url);
+									list.get(index).setPublish_time(game.getString("publish_time"));
+									list.get(index).setIntroduction(game.getString("introduction"));
+									list.get(index).setDetail(game.getString("detail"));
+									list.get(index).setDetail_image(game.getString("detail_image"));
+									list.get(index).setDownload_url(game.getString("download_url"));
+									list.get(index).setPraise_num(game.getInt("praise_num"));
 								}
 								//list.get(index).setBitmap(returnBitMap(url));
 								handler.sendEmptyMessage(1);

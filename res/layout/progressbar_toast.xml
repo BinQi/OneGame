@@ -4,11 +4,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="#ffffff">
-    
+    <!-- 
     <ProgressBar
   	    android:id="@+id/fprogressBar"
   	    style="?android:attr/progressBarStyleLarge"
   	    android:layout_width="wrap_content"
   	    android:layout_height="wrap_content" />
-         
+      -->
+      <com.sungy.onegame.view.LoadingImageView 
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />    
 </RelativeLayout>

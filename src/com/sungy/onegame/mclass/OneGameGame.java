@@ -1,6 +1,7 @@
 package com.sungy.onegame.mclass;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class OneGameGame implements Serializable{
 	private int id;
@@ -19,10 +20,29 @@ public class OneGameGame implements Serializable{
 	private int collect_num;
 	private int share_num;
 	
+	private String collect_time;
+	private Date datetime;
+	
 	public OneGameGame(){
 		
 	}
 
+	public void setCollect_time(String s) {
+		collect_time = s;
+	}
+	
+	public String getCollect_time() {
+		return collect_time;
+	}
+	
+	public void setDatetime(Date time) {
+		datetime = time;
+	}
+	
+	public Date getDatetime() {
+		return datetime;
+	}
+	
 	public String getGame_name() {
 		return game_name;
 	}

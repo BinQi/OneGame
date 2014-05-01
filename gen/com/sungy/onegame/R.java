@@ -196,7 +196,7 @@ containing a value of this type.
     }
     public static final class id {
         public static final int abstractt=0x7f090031;
-        public static final int action_settings=0x7f090055;
+        public static final int action_settings=0x7f090054;
         public static final int advice=0x7f090014;
         public static final int back=0x7f090011;
         public static final int center_frame=0x7f09001b;
@@ -236,7 +236,6 @@ containing a value of this type.
         public static final int fdelete=0x7f090027;
         public static final int fedit=0x7f090026;
         public static final int footer=0x7f090033;
-        public static final int fprogressBar=0x7f090050;
         public static final int gallery=0x7f090004;
         public static final int game_container=0x7f090032;
         public static final int header=0x7f090046;
@@ -263,13 +262,13 @@ containing a value of this type.
         public static final int praiseNo=0x7f09002f;
         public static final int progress_toast_layout=0x7f09004f;
         public static final int qqLogin=0x7f09004b;
-        public static final int resource_left=0x7f090051;
+        public static final int resource_left=0x7f090050;
         public static final int search_btn=0x7f090018;
-        public static final int search_date=0x7f090052;
+        public static final int search_date=0x7f090051;
         public static final int search_gridview=0x7f090019;
         public static final int search_header=0x7f090016;
-        public static final int search_image=0x7f090053;
-        public static final int search_name=0x7f090054;
+        public static final int search_image=0x7f090052;
+        public static final int search_name=0x7f090053;
         public static final int search_text=0x7f090017;
         public static final int slidingMenu=0x7f090015;
         public static final int time=0x7f090022;
