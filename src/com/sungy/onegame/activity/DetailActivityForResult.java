@@ -36,6 +36,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -422,18 +423,78 @@ public class DetailActivityForResult extends Activity implements OnClickListener
 		intruction = game.getDetail();
 		String[] intructionArr = intruction.split("#image#");
 		TextView text;
+		String str ="";
+		String[] fontArr ;
+		int k =0;
+		String matchStr = "";
 		for(l=0; l<intructionArr.length; l++){
-			text = (TextView) inflater.inflate(R.layout.intruction_text, null);
-			text.setText(intructionArr[l]);
-			detailIntruction.addView(text);
+//			text = (TextView) inflater.inflate(R.layout.intruction_text, null);
+//			text.setText(intructionArr[l]);
+//			detailIntruction.addView(text);
+			//设置多字体
+			str = intructionArr[l];
+			fontArr = str.split("#font");
+			if(fontArr.length == 1){
+				text = (TextView) inflater.inflate(R.layout.intruction_text, null);
+				text.setText(intructionArr[l]);
+				detailIntruction.addView(text);
+			}else{
+				if(fontArr.length %2 != 1){
+					Log.e(TAG, "字体分析错误:字体数量错误");
+				}else{
+					//第一段文字
+					text = (TextView) inflater.inflate(R.layout.intruction_text, null);
+					text.setText(fontArr[0]);
+					detailIntruction.addView(text);
+					for(k=1; k<fontArr.length; k=k+2){
+						text = (TextView) inflater.inflate(R.layout.intruction_text, null);
+						Log.d(TAG, fontArr[k] +"/n"+fontArr[k+1]);
+						str = fontArr[k];
+						matchStr = "";
+						int loc = 0;
+						if((loc = str.indexOf("bold#")) != -1){
+//							text.setTypeface(null,Typeface.BOLD);
+							TextPaint tp = text.getPaint();  
+							tp.setFakeBoldText(true);  
+							str = str.replaceFirst("bold#", "");
+							matchStr += "bold#";
+						}else if((loc = str.indexOf("italic#")) != -1){
+							text.setTypeface(null,Typeface.ITALIC);
+							str = str.replaceFirst("italic#", "");
+							matchStr += "italic#";
+						}else if((loc = str.indexOf("#")) !=-1){
+							str = str.replaceFirst("#", "");
+							matchStr += "#";
+						}
+						str = str.substring(0, loc);
+						matchStr = str+matchStr;
+						//读取字体大小
+						if(!str.equals("")){
+							try {
+								int size = Integer.valueOf(str);
+								text.setTextSize(size);
+							} catch (NumberFormatException e) {
+								e.printStackTrace();
+								Log.e(TAG, "字体分析错误:字体标签错误");
+							}
+						}
+						str = fontArr[k].replaceFirst(matchStr, "");
+						text.setText(str);
+						detailIntruction.addView(text);
+						//紧接着的第二段文字
+						text = (TextView) inflater.inflate(R.layout.intruction_text, null);
+						str = fontArr[k+1].replaceFirst(matchStr, "");
+						text.setText(str);
+						detailIntruction.addView(text);
+					}
+				}
+			}
 			if(l == intructionArr.length-1){
 				break;
 			}
 			if(l >= detailImageViews.length){
 				 continue;
 			}
-//			detailImageViews[t] = (ImageView) inflater.inflate(R.layout.intruction_image, null);
-//			detailImageViews[t].setImageBitmap(detailImages[t]);
 			detailIntruction.addView(detailImageViews[l]);
 		}
 		isLoadImageViews = true;
@@ -756,10 +817,12 @@ public class DetailActivityForResult extends Activity implements OnClickListener
 				});
 			}
 		}else if(v == detailDownload){
-			Toast.makeText(this, "正在跳转到下载地址...", Toast.LENGTH_SHORT).show();
-			Uri uri = Uri.parse(gameurl);    
-			Intent it = new Intent(Intent.ACTION_VIEW, uri);    
-			startActivity(it);  
+			if(gameurl!=null	&&	!gameurl.equals("")){
+				Toast.makeText(this, "正在跳转到下载地址...", Toast.LENGTH_SHORT).show();
+				Uri uri = Uri.parse(gameurl);    
+				Intent it = new Intent(Intent.ACTION_VIEW, uri);    
+				startActivity(it);  
+			}
 		}
 	}
 	

@@ -77,7 +77,7 @@ public class GridViewAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
+		ImageView image;
 		if(convertView == null){
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(R.layout.search_item, null);
@@ -85,9 +85,12 @@ public class GridViewAdapter extends BaseAdapter {
 			holder.searchDate = (TextView)convertView.findViewById(R.id.search_date);
 			holder.searchName = (TextView)convertView.findViewById(R.id.search_name);
 			convertView.setTag(holder);
+			
+			image = holder.searchImage;
 		}
 		else{
 			holder = (ViewHolder)convertView.getTag();
+			image = holder.searchImage;
 		}
 		
 		//背景图
@@ -104,7 +107,8 @@ public class GridViewAdapter extends BaseAdapter {
 		holder.searchName.setTypeface(tf);
 		
 		//显示默认图片
-		holder.searchImage.setImageResource(R.drawable.defalut);
+//		holder.searchImage.setImageResource(R.drawable.defalut);
+		image.setImageResource(R.drawable.defalut);
 		holder.game_image_url = SearchActivity.searchList.get(position).getImage();
 //		//如果是本地图片，则加载
 //		if(!holder.game_image_url.contains("http://")){
@@ -123,13 +127,15 @@ public class GridViewAdapter extends BaseAdapter {
 		
 		//检查缓存中是否存在图片
 		if(bitmaps.containsKey(SearchActivity.searchList.get(position).getId())){
-			holder.searchImage.setImageBitmap(bitmaps.get(SearchActivity.searchList.get(position).getId()));
+//			holder.searchImage.setImageBitmap(bitmaps.get(SearchActivity.searchList.get(position).getId()));
+			image.setImageBitmap(bitmaps.get(SearchActivity.searchList.get(position).getId()));
 		}else{
 			//如果是本地图片
 			if(!holder.game_image_url.contains("http://")){
 				Bitmap bitmap = BitmapFactory.decodeFile(holder.game_image_url);
 				bitmaps.put(SearchActivity.searchList.get(position).getId(), bitmap);
-				holder.searchImage.setImageBitmap(bitmap);
+//				holder.searchImage.setImageBitmap(bitmap);
+				image.setImageBitmap(bitmap);
 				bitmap = null;
 				
 			}else{	//如果是远程图片

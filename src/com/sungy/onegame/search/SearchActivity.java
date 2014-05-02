@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -133,6 +134,18 @@ public class SearchActivity extends Activity {
 					return;
 				}
 				searchGame(text);
+			}
+		});
+		
+		//返回按钮
+		ImageView back = (ImageView) findViewById(R.id.search_back);
+		back.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				finish();
+				overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+				destory();
 			}
 		});
 		
@@ -386,7 +399,7 @@ public class SearchActivity extends Activity {
 		String str = HttpUtils.doPostWithoutStrict(Global.GAME_SEARCHGAMELIST,params);
 		return parseJson2List(str);
 	}
-	
+
 	/**
 	 * 释放内存
 	 */

@@ -52,7 +52,8 @@ public class CommentItemAdapter extends BaseAdapter{
 		@Override
 		public void handleMessage(Message msg) {
 			if(msg.what == 1){
-				holder.comment_image.setImageBitmap(bitmaps.get(msg.arg1));
+//				holder.comment_image.setImageBitmap(bitmaps.get(msg.arg1));
+				((ImageView) msg.obj).setImageBitmap(bitmaps.get(msg.arg1));
 //				notifyDataSetChanged();
 //				notifyDataSetInvalidated();
 //				Log.e("getView","notifyDataSetInvalidated");
@@ -86,6 +87,7 @@ public class CommentItemAdapter extends BaseAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		boolean myPosition = false;
+		ImageView image = null;
 		if(position == -1){	//为获取高度而特设的
 			myPosition = true;
 			position = 0;
@@ -98,10 +100,12 @@ public class CommentItemAdapter extends BaseAdapter{
 			holder.comment_time = (TextView)convertView.findViewById(R.id.comment_time);
 			holder.comment_content = (TextView)convertView.findViewById(R.id.comment_content);		
 			holder.comment_image = (ImageView)convertView.findViewById(R.id.comment_userimage);		
+			image = holder.comment_image;	
 			
 			convertView.setTag(holder);
 		}else{
 			holder = (ViewHolder)convertView.getTag();
+			image = holder.comment_image;	
 		}
 		
 		//设置字体
@@ -119,7 +123,8 @@ public class CommentItemAdapter extends BaseAdapter{
 		final int finalPosition = position;
 		final int finalUserid = DetailActivity.commentList.get(position).getUser_id();
 		if(myPosition){
-			holder.comment_image.setImageResource( R.drawable.defaultimage);
+//			holder.comment_image.setImageResource( R.drawable.defaultimage);
+			image.setImageResource( R.drawable.defaultimage);
 		}else{
 			
 			if(!bitmaps.containsKey(finalUserid)){
@@ -131,7 +136,9 @@ public class CommentItemAdapter extends BaseAdapter{
 				
 				Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.defaultimage);
 				bitmaps.put(finalUserid, bitmap);
-				holder.comment_image.setImageBitmap(bitmaps.get(finalUserid));
+//				holder.comment_image.setImageBitmap(bitmaps.get(finalUserid));
+				image.setImageBitmap(bitmaps.get(finalUserid));
+				final ImageView image2 = image;
 				Thread t1 = new Thread(new Runnable() {
 					
 					@Override
@@ -143,7 +150,8 @@ public class CommentItemAdapter extends BaseAdapter{
 								bitmaps.put(finalUserid, bitmap);
 								Message msg = new Message();
 								msg.what = 1;
-								msg.arg1 = finalUserid;
+								msg.arg1 = finalUserid;								
+								msg.obj = image2;
 								myHandler.sendMessage(msg);
 							}
 						}
@@ -151,7 +159,8 @@ public class CommentItemAdapter extends BaseAdapter{
 				});
 				t1.start();
 			}else{
-				holder.comment_image.setImageBitmap(bitmaps.get(finalUserid));
+//				holder.comment_image.setImageBitmap(bitmaps.get(finalUserid));
+				image.setImageBitmap(bitmaps.get(finalUserid));
 			}
 		}
 		return convertView;

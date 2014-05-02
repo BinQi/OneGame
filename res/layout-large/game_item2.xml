@@ -24,6 +24,7 @@
     	android:layout_gravity="right"
     	android:paddingRight="33dp"
     	android:paddingTop="52.5dp"
+    	android:maxLines="1"
         />
     
     <TextView 

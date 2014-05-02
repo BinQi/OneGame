@@ -194,9 +194,9 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 		holder.date_month.setTypeface(tf);
 		holder.date_week.setTypeface(tf);
 		holder.date_week2.setTypeface(tf);
-		holder.game_abstract.setTypeface(tf);
+//		holder.game_abstract.setTypeface(tf);
 		holder.game_praiseNo.setTypeface(tf);
-		holder.game_title.setTypeface(tf);
+//		holder.game_title.setTypeface(tf);
 		
 		OneGameGame game = SampleListFragment.gameList.get(arg0);
 		//显示正在加载

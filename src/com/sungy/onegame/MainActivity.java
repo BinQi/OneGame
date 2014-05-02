@@ -102,7 +102,7 @@ public class MainActivity extends FragmentActivity {
 		image = new ImageView(this);
 		RelativeLayout.LayoutParams par = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 		image.setLayoutParams(par);
-		image.setImageResource(R.drawable.splsh_bg_conew1);
+		image.setImageResource(R.drawable.splsh_bg);
 		image.setScaleType(ImageView.ScaleType.FIT_XY);
 		mSlidingMenu.addView(image);	
         Message msg = new Message();  

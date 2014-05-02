@@ -27,6 +27,7 @@
     	android:paddingRight="22dp"
     	android:paddingTop="35dp"
     	android:textSize="25dp"
+    	android:maxLines="1"
         />
     
     <TextView 

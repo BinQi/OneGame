@@ -28,7 +28,7 @@ import com.sungy.onegame.mclass.HttpUtils;
 
 public class FeedBackActivity extends Activity{
 	private EditText problem, advice;
-	private Button post;
+	private ImageView post;
 	private ImageView back;
 	private String pType;
 	private String userid;
@@ -47,7 +47,7 @@ public class FeedBackActivity extends Activity{
         setContentView(R.layout.activity_feed_back);
 //        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title); 
 		advice = (EditText)findViewById(R.id.advice);
-		post = (Button)findViewById(R.id.post);
+		post = (ImageView)findViewById(R.id.post);
 		back = (ImageView)findViewById(R.id.back);
 		
 		back.setOnClickListener(new View.OnClickListener() {
