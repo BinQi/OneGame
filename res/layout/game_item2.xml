@@ -3,9 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
-    android:background="@drawable/card_bg"
-    android:paddingLeft="16dp"
-    android:paddingRight="14dp"
+    android:background="@drawable/card_bg2"
+    android:paddingLeft="5dp"
+    android:paddingRight="10dp"
     android:paddingTop="21dp"
     android:id="@+id/game_container">
 
@@ -24,7 +24,7 @@
     	android:text="时空猎人"
     	android:textColor="#5197E0"
     	android:layout_gravity="right"
-    	android:paddingRight="22dp"
+    	android:paddingRight="15dp"
     	android:paddingTop="35dp"
     	android:textSize="25dp"
     	android:maxLines="1"
@@ -37,21 +37,14 @@
        	android:layout_marginTop="0dp"
        	android:layout_marginBottom="5dp"
        	android:layout_marginLeft="15dp"
-       	android:layout_marginRight="15dp"
+       	android:layout_marginRight="13dp"
        	android:maxLines="6"
        	android:textSize="16dp"
         />
-    
-    <ImageView 
-        android:layout_width="fill_parent"  
-	    android:layout_height="1px"  
-	    android:background="?android:attr/listDivider" 
-	    />
-    
 
    <RelativeLayout 
         android:layout_width="fill_parent"
-        android:layout_height="60dp"
+        android:layout_height="70dp"
         android:orientation="horizontal"  
         android:gravity="center_vertical"
         android:id="@+id/footer"

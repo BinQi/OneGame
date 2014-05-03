@@ -11,7 +11,7 @@
     <LinearLayout 
         android:id="@+id/search_header"
         android:layout_width="match_parent"
-    	android:layout_height="60dp"
+    	android:layout_height="90dp"
     	android:orientation="horizontal"
     	android:background="@drawable/main_top"
     	android:gravity="center_vertical"
@@ -20,7 +20,7 @@
             android:id="@+id/search_back"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="15dp"
+            android:padding="22.5dp"
             android:layout_weight="1"
             android:clickable="true"
             android:layout_gravity="left"
@@ -28,7 +28,7 @@
             />
         <LinearLayout 
             android:layout_width="0dp"
-    		android:layout_height="50dp"
+    		android:layout_height="75dp"
     		android:layout_weight="5"
     		android:orientation="horizontal"
     		android:gravity="center_vertical"
@@ -39,16 +39,16 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:layout_marginLeft="40dp"
+                android:layout_marginLeft="60dp"
                 android:background="#00000000"
                 />
             <ImageView 
                 android:id="@+id/search_btn"
            	 	android:layout_width="0dp"
-            	android:layout_height="50dp"
+            	android:layout_height="75dp"
             	android:layout_weight="1"
             	android:clickable="true"
-            	android:layout_marginRight="20dp"
+            	android:layout_marginRight="30dp"
             	android:src="@drawable/bt_search"
             	/>
         </LinearLayout>
@@ -59,13 +59,13 @@
         android:layout_below="@id/search_header"
         android:layout_width="fill_parent"
     	android:layout_height="fill_parent"
-   		android:paddingTop="15dp"
-   		android:paddingLeft="10dp"
-   		android:paddingRight="10dp"
+   		android:paddingTop="22.5dp"
+   		android:paddingLeft="25dp"
+   		android:paddingRight="15dp"
     	android:numColumns="3"
     	android:stretchMode="columnWidth"
-    	android:verticalSpacing="20dp"
-    	android:horizontalSpacing="10dp"
+    	android:verticalSpacing="30dp"
+    	android:horizontalSpacing="15dp"
     	android:descendantFocusability="blocksDescendants"
     	android:gravity="center">
     </GridView>
@@ -79,8 +79,8 @@
         android:visibility="gone">
         
         <com.sungy.onegame.view.LoadingImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_centerInParent="true"
             >        
         </com.sungy.onegame.view.LoadingImageView>

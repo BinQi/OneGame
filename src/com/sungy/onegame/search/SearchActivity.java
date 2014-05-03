@@ -298,10 +298,10 @@ public class SearchActivity extends Activity {
 		OneGameGame game = searchList.get(searchList.size() - 1);
 		String lastPublishTime = game.getPublish_time();
 		
-		// 加载从最后日期之后开始的十条数据
+		// 加载从最后日期之后开始的九条数据
 		// 从后台获取数据
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("pageSize", "10"));
+		params.add(new BasicNameValuePair("pageSize", "9"));
 		params.add(new BasicNameValuePair("pageNo", "1"));
 		params.add(new BasicNameValuePair("publish_time", lastPublishTime));
 		String str = HttpUtils.doPostWithoutStrict(Global.GAME_GETONEDAYLIST,params);

@@ -42,6 +42,7 @@ import com.sungy.onegame.activity.DetailActivity;
 import com.sungy.onegame.flipview.FlipCards;
 import com.sungy.onegame.flipview.FlipViewController;
 import com.sungy.onegame.mclass.DateUtils;
+import com.sungy.onegame.mclass.DisplayUtil;
 import com.sungy.onegame.mclass.DownLoadUtils;
 import com.sungy.onegame.mclass.Global;
 import com.sungy.onegame.mclass.HttpUtils;
@@ -149,6 +150,8 @@ public class SampleListFragment extends ListFragment {
 	private int stausBarHeight;
 	//顶部高度
 	private int headerHeight;
+	//屏幕密度
+	private float density;
 	
 	protected boolean isStartActivity = false;
 	
@@ -170,6 +173,9 @@ public class SampleListFragment extends ListFragment {
 		} catch(Exception e1) {
 		    e1.printStackTrace();
 		}
+		
+		density = getResources().getDisplayMetrics().density;
+		Log.e(TAG, density+"");
 		
 		gameList = new ArrayList<OneGameGame>();
 		gameMap = new HashMap<Integer, OneGameGame>();
@@ -201,10 +207,23 @@ public class SampleListFragment extends ListFragment {
 //		layout.addView(flipView);
 		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
 		lp.addRule(RelativeLayout.BELOW, R.id.header);
+		lp.leftMargin = DisplayUtil.dip2px(getActivity(), 10);
+		lp.rightMargin = DisplayUtil.dip2px(getActivity(), 10);
+		lp.topMargin = DisplayUtil.dip2px(getActivity(), 3);
+		lp.bottomMargin = DisplayUtil.dip2px(getActivity(), 10);
 		flipView.setLayoutParams(lp);
 		layout = (RelativeLayout) mView.findViewById(R.id.listlayout);
 		layout.addView(flipView);
-	
+		
+		//添加吊环
+		LinearLayout ring = new LinearLayout(getActivity());
+		RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,DisplayUtil.dip2px(getActivity(), 45));
+		lp2.addRule(RelativeLayout.BELOW, R.id.header);
+		lp2.topMargin = DisplayUtil.dip2px(getActivity(), -25);
+		ring.setLayoutParams(lp2);
+		ring.setBackgroundResource(R.drawable.main_top_kou);
+		layout.addView(ring);
+		
 		//为下拉加载而用
 		flipView.setOneGameListener(listener);
 				

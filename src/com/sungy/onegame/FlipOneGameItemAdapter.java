@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -78,18 +79,18 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 	//顶部高度
 	private int headerHeight;
 	//适屏比例
-	private float containerPadingTopScale = 0.043f;
-	private float imageScale = 0.409f;
+	private float containerPadingTopScale = 0.053f;
+	private float imageScale = 0.399f;
 	private float titleSizeScale = 0.051f;
-	private float titlePaddingTopScale = 0.07f;
+	private float titlePaddingTopScale = 0.05f;
 	private float abstracttSizeScale = 0.033f;
 	private float abstracttPaddingTopScale =  0.01f;
-	private float abstracttPaddingBottomScale =  0.01f;
-	private float footerScale =  0.102f;
+	private float abstracttPaddingBottomScale =  0.02f;
+	private float footerScale =  0.119f;
 	private float praiseNoSizeScale =  0.041f;
 	private float daySizeScale =  0.051f;
 	private float dateMonthSizeScale =  0.031f;
-	private float dateDaySizeScale =  0.062f;
+	private float dateDaySizeScale =  0.070f;
 	private float dateWeekSizeScale =  0.025f;
 	private float dateWeekScale =  0.020f;
 	
@@ -188,15 +189,6 @@ public class FlipOneGameItemAdapter extends BaseAdapter {
 		lp2 = (GridLayout.LayoutParams) holder.date_week2.getLayoutParams();
 		lp2.topMargin = (int) (-height*dateWeekScale);
 		holder.date_week2.setLayoutParams(lp2);
-		
-		//设置字体
-		holder.date_day.setTypeface(tf);
-		holder.date_month.setTypeface(tf);
-		holder.date_week.setTypeface(tf);
-		holder.date_week2.setTypeface(tf);
-//		holder.game_abstract.setTypeface(tf);
-		holder.game_praiseNo.setTypeface(tf);
-//		holder.game_title.setTypeface(tf);
 		
 		OneGameGame game = SampleListFragment.gameList.get(arg0);
 		//显示正在加载

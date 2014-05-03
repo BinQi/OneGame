@@ -3,27 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
-    android:background="@drawable/card_bg"
-    android:paddingLeft="24dp"
-    android:paddingRight="21dp"
-    android:paddingTop="31.5dp">
+    android:background="@drawable/card_bg2"
+    android:paddingLeft="7.5dp"
+    android:paddingRight="15dp"
+    android:paddingTop="31.5dp"
+    android:id="@+id/game_container">
 
     <ImageView
         android:id="@+id/image"
         android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:src="@drawable/defalut2"
-        android:scaleType="fitXY" />
+        android:layout_height="300dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/defalut2" />
     
     <TextView 
     	android:id="@+id/title"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
     	android:textStyle="bold"
+    	android:text="时空猎人"
     	android:textColor="#5197E0"
     	android:layout_gravity="right"
-    	android:paddingRight="33dp"
+    	android:paddingRight="22.5dp"
     	android:paddingTop="52.5dp"
+    	android:textSize="37.5dp"
     	android:maxLines="1"
         />
     
@@ -34,20 +37,14 @@
        	android:layout_marginTop="0dp"
        	android:layout_marginBottom="7.5dp"
        	android:layout_marginLeft="22.5dp"
-       	android:layout_marginRight="22.5dp"
+       	android:layout_marginRight="19.5dp"
        	android:maxLines="6"
+       	android:textSize="24dp"
         />
-    
-    <ImageView 
-        android:layout_width="fill_parent"  
-	    android:layout_height="1px"  
-	    android:background="?android:attr/listDivider" 
-	    />
-    
 
-<RelativeLayout 
+   <RelativeLayout 
         android:layout_width="fill_parent"
-        android:layout_height="90dp"
+        android:layout_height="105dp"
         android:orientation="horizontal"  
         android:gravity="center_vertical"
         android:id="@+id/footer"

@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:orientation="horizontal" 
-        android:background="@drawable/main_top1"
+        android:background="@drawable/main_top"
         android:id="@+id/header">
 
         <ImageView
@@ -55,7 +55,7 @@
             android:padding="10dp"
             android:layout_gravity="right"
             android:layout_weight="1"
-            android:src="@drawable/dairy" />
+            android:src="@drawable/search" />
     </LinearLayout>
     
     <LinearLayout

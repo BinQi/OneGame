@@ -10,7 +10,7 @@
 	    android:layout_width="fill_parent"     
 	    android:layout_height="60dp"
 	    android:gravity="center"
-	    android:background="@drawable/main_top1">     
+	    android:background="@drawable/main_top">     
      <ImageView
             android:id="@+id/back"
             android:layout_width="40dp"
