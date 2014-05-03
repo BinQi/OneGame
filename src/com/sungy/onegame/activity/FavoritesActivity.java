@@ -80,6 +80,7 @@ public class FavoritesActivity extends Activity {
 	private boolean ifdelete = false;
 	private static boolean ifcancel = false;
 	private boolean deletefinish = true;
+	private boolean isXianMianOn = false;
 	
 	private ArrayList<OneGameGame> list = new ArrayList<OneGameGame>();
 	//private List<NameValuePair> data = new ArrayList<NameValuePair>();
@@ -155,7 +156,6 @@ public class FavoritesActivity extends Activity {
 			public void onClick(View v){
 				if(ifdelete) {
 					if(!deletefinish) {
-						Log.e(TAG, "dddddddddd");
 						return;
 					}
 					else
@@ -219,7 +219,16 @@ public class FavoritesActivity extends Activity {
 			    	deletefinish = true;
 			    	Log.e(TAG, "delete finisheddddddd");
 				}
-				else {}
+				else {
+					Toast mytoast;
+					if(isXianMianOn)
+						mytoast = Toast.makeText(getApplicationContext(), "已关闭", Toast.LENGTH_SHORT);
+					else
+						mytoast = Toast.makeText(getApplicationContext(), "已打开", Toast.LENGTH_SHORT);
+					isXianMianOn = !isXianMianOn;
+					mytoast.setGravity(Gravity.BOTTOM, 0, 0);
+					mytoast.show();
+				}
 			}
 		});
 		cancelButton.setOnClickListener(new OnClickListener(){
@@ -397,7 +406,7 @@ public class FavoritesActivity extends Activity {
 				JSONObject json;
 				String message = "";
 				JSONArray listData = null;
-				Log.e(TAG, str);
+				//Log.e(TAG, str);
 				try {
 					json = new JSONObject(str);
 					message = json.getString( "message" );
