@@ -45,6 +45,12 @@
             android:theme="@style/DefaultAppTheme"
             android:screenOrientation="portrait">
         </activity>
+        <activity 
+            android:name="com.sungy.onegame.activity.AboutUsActivity"
+            android:label="@string/title_activity_detail" 
+            android:theme="@style/DefaultAppTheme"
+            android:screenOrientation="portrait">
+        </activity>
         <activity
             android:theme="@style/head"
             android:name="com.sungy.onegame.activity.FeedBackActivity"
