@@ -742,9 +742,11 @@ public class DetailActivity extends Activity implements OnClickListener{
 					praise(useid, usename, gamename, gameid);
 					SampleListFragment.gameList.get(index).setPraise_num(SampleListFragment.gameList.get(index).getPraise_num()+1);
 					detailPraiseNo.setText(Integer.toString(Integer.parseInt((String) detailPraiseNo.getText())+1));
+					detailPraise.setImageResource(R.drawable.detail_praise);
 				}else if(isPraise == 1){
 					ToastUtils.showDefaultToast(getApplicationContext(), "取消点赞成功", Toast.LENGTH_SHORT);
 					canclePraise(praiseId, gameid);
+					detailPraise.setImageResource(R.drawable.praise_cancel);
 					SampleListFragment.gameList.get(index).setPraise_num(SampleListFragment.gameList.get(index).getPraise_num()-1);
 					detailPraiseNo.setText(Integer.toString(Integer.parseInt((String) detailPraiseNo.getText())-1));
 				}else if(isPraise == 3){

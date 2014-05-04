@@ -147,7 +147,7 @@ public class FavoritesActivity extends Activity {
 		buttonRL = (RelativeLayout)findViewById(R.id.fedit);
 		deleteButton = (ImageTextButton)findViewById(R.id.fdelete);
 		cancelButton = (ImageTextButton)findViewById(R.id.fcancel);
-		deleteButton.setImgResource(R.drawable.clip);
+		deleteButton.setImgResource(R.drawable.clip_off);
 		deleteButton.setText("限免信息推送");
 		cancelButton.setImgResource(R.drawable.pencil);
 		cancelButton.setText("编辑");
@@ -221,10 +221,16 @@ public class FavoritesActivity extends Activity {
 				}
 				else {
 					Toast mytoast;
-					if(isXianMianOn)
+					if(isXianMianOn){
+						deleteButton.setImgResource(R.drawable.clip_off);
 						mytoast = Toast.makeText(getApplicationContext(), "已关闭", Toast.LENGTH_SHORT);
-					else
+					}
+						
+					else{
+						deleteButton.setImgResource(R.drawable.clip_on);
 						mytoast = Toast.makeText(getApplicationContext(), "已打开", Toast.LENGTH_SHORT);
+					}
+						
 					isXianMianOn = !isXianMianOn;
 					mytoast.setGravity(Gravity.BOTTOM, 0, 0);
 					mytoast.show();

@@ -85,14 +85,18 @@ public class LeftFragment extends Fragment implements Callback {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		ShareSDK.initSDK(getActivity());
-		View view = inflater.inflate(R.layout.left_fragment, null);
-		userNameTv = (TextView) view.findViewById(R.id.userName);
-		userImage = (ImageView) view.findViewById(R.id.userImage);
-		userLoginTv = (TextView) view.findViewById(R.id.userLogin);
-		
+
 		//字体
         AssetManager mgr = getActivity().getAssets();//得到AssetManager
         tf = Typeface.createFromAsset(mgr, typeFaceDir);//根据路径得到Typeface
+        
+		View view = inflater.inflate(R.layout.left_fragment, null);
+		userNameTv = (TextView) view.findViewById(R.id.userName);
+		userNameTv.setTypeface(tf);
+		userImage = (ImageView) view.findViewById(R.id.userImage);
+		userLoginTv = (TextView) view.findViewById(R.id.userLogin);
+		userLoginTv.setTypeface(tf);
+		
 
 		// user login
 		LinearLayout oneGameLogin = (LinearLayout) view
@@ -248,7 +252,7 @@ public class LeftFragment extends Fragment implements Callback {
 				final TextView recomment_text = (TextView)DialogView.findViewById(R.id.recomment_text);
 				recomment_text.setTypeface(tf);
 				
-				final EditText mEditText=(EditText) DialogView.findViewById(R.id.comment);
+				final TextView mEditText=(TextView) DialogView.findViewById(R.id.comment);
 				mEditText.setTypeface(tf);
 				
 				final AlertDialog dlg = new AlertDialog.Builder(getActivity())
@@ -261,8 +265,7 @@ public class LeftFragment extends Fragment implements Callback {
 		    	recommendBtn.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						String mSaying=mEditText.getText().toString();
-						shareRecommend(mSaying);
+						shareRecommend();
 						dlg.dismiss();
 					}
 				});
@@ -487,7 +490,7 @@ public class LeftFragment extends Fragment implements Callback {
 		popLoadingDialog();
 	}
 	
-	private void shareRecommend(String s){
+	private void shareRecommend(){
 		ShareSDK.initSDK(getActivity());
 		OnekeyShare oks = new OnekeyShare();
  
@@ -499,7 +502,7 @@ public class LeftFragment extends Fragment implements Callback {
 		// // titleUrl是标题的网络链接，QQ空间一定要用
 		oks.setTitleUrl("http://sharesdk.cn");
 		// text是分享文本，所有平台都需要这个字段
-		oks.setText("“每日游”是一款由专业玩家每天为您选出精品游戏的游戏推荐应用\n"+s);
+		oks.setText("您在每日游支持的每一个游戏，都在构筑着我们的游戏世界。每日游，专注游戏每一天，快乐游戏到永远。点击链接下载每日游，畅想精致游戏，玩转您的游戏世界:www.baidu.com\n");
 
 //		 site是分享此内容的网站名称，QQ空间一定要用
 		oks.setSite(getString(R.string.app_name));
