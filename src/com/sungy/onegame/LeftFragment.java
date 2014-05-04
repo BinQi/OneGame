@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,8 +20,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -30,6 +33,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,13 +41,17 @@ import android.widget.Toast;
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.framework.Platform.ShareParams;
 import cn.sharesdk.framework.utils.UIHandler;
+import cn.sharesdk.onekeyshare.OnekeyShare;
+import cn.sharesdk.onekeyshare.ShareContentCustomizeCallback;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
 
+import com.sungy.onegame.activity.AboutUsActivity;
+import com.sungy.onegame.activity.DetailActivity;
 import com.sungy.onegame.activity.FavoritesActivity;
 import com.sungy.onegame.activity.FeedBackActivity;
-import com.sungy.onegame.activity.ResourceFragment;
 import com.sungy.onegame.mclass.Global;
 import com.sungy.onegame.mclass.Global.LoginListener;
 import com.sungy.onegame.mclass.HttpUtils;
@@ -62,6 +70,15 @@ public class LeftFragment extends Fragment implements Callback {
 	private Context mContext;
 	private boolean isDefaultLogin = false;
 	
+	//字体
+    private Typeface tf;
+    //字体路径
+    private String typeFaceDir = "fonts/font.ttf";
+	//星期中文
+	private final String[] WEEKS_CN = new String[]{
+			"星期日","星期一","星期二","星期三","星期四","星期五","星期六"	
+		};
+	
 	//正在登录对话框
 	private AlertDialog dialog;
 
@@ -72,6 +89,10 @@ public class LeftFragment extends Fragment implements Callback {
 		userNameTv = (TextView) view.findViewById(R.id.userName);
 		userImage = (ImageView) view.findViewById(R.id.userImage);
 		userLoginTv = (TextView) view.findViewById(R.id.userLogin);
+		
+		//字体
+        AssetManager mgr = getActivity().getAssets();//得到AssetManager
+        tf = Typeface.createFromAsset(mgr, typeFaceDir);//根据路径得到Typeface
 
 		// user login
 		LinearLayout oneGameLogin = (LinearLayout) view
@@ -189,6 +210,74 @@ public class LeftFragment extends Fragment implements Callback {
 			}
 		});
 
+		//关于我们
+		LinearLayout oneAboutUsPage = (LinearLayout) view.findViewById(R.id.one_about);
+		oneAboutUsPage.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent=new Intent(getActivity(), AboutUsActivity.class);
+				startActivity(intent);
+			}
+		});
+		
+		//推荐我们
+		LinearLayout oneRecommendPage=(LinearLayout) view.findViewById(R.id.one_recommend);
+		oneRecommendPage.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// 检查是否登录
+				if (!Global.checkLogin(getActivity())) {
+					return;
+				}
+				LayoutInflater factory = LayoutInflater.from(getActivity());
+				View DialogView = factory.inflate(R.layout.recommend_layout, null);
+				//当天时间
+				Calendar c = Calendar.getInstance();
+		        int mMonth = c.get(Calendar.MONTH);//获取当前月份
+		        int mDay = c.get(Calendar.DAY_OF_MONTH);//获取当前月份的日期号码
+		        int mWeek = c.get(Calendar.DAY_OF_WEEK);
+				String showTime = "";
+				showTime = (mMonth+1)+"月"+mDay+"日	"+WEEKS_CN[mWeek-1];
+				
+				TextView time = (TextView)DialogView.findViewById(R.id.time);
+				time.setText(showTime);
+				time.setTypeface(tf);
+				
+				final TextView recomment_text = (TextView)DialogView.findViewById(R.id.recomment_text);
+				recomment_text.setTypeface(tf);
+				
+				final EditText mEditText=(EditText) DialogView.findViewById(R.id.comment);
+				mEditText.setTypeface(tf);
+				
+				final AlertDialog dlg = new AlertDialog.Builder(getActivity())
+		    	.setView(DialogView)
+				.create();
+		    	dlg.show();
+		    	
+		    	//完成推荐我们
+		    	ImageView recommendBtn=(ImageView) DialogView.findViewById(R.id.recommend_btn);
+		    	recommendBtn.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						String mSaying=mEditText.getText().toString();
+						shareRecommend(mSaying);
+						dlg.dismiss();
+					}
+				});
+		    	//取消推荐我们
+		    	ImageView recommendCancel=(ImageView) DialogView.findViewById(R.id.recommend_cancel);
+		    	recommendCancel.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						dlg.dismiss();
+					}
+				});
+			}
+		});
+		
 		//反馈
 		LinearLayout oneFeedbackPage = (LinearLayout) view
 				.findViewById(R.id.one_feedback);
@@ -398,6 +487,58 @@ public class LeftFragment extends Fragment implements Callback {
 		popLoadingDialog();
 	}
 	
+	private void shareRecommend(String s){
+		ShareSDK.initSDK(getActivity());
+		OnekeyShare oks = new OnekeyShare();
+ 
+		// 分享时Notification的图标和文字，不必改
+		oks.setNotification(R.drawable.ic_launcher,
+				getString(R.string.app_name));
+		// title标题，QQ空间一定要用
+		oks.setTitle("每日游推广");
+		// // titleUrl是标题的网络链接，QQ空间一定要用
+		oks.setTitleUrl("http://sharesdk.cn");
+		// text是分享文本，所有平台都需要这个字段
+		oks.setText("“每日游”是一款由专业玩家每天为您选出精品游戏的游戏推荐应用\n"+s);
+
+//		 site是分享此内容的网站名称，QQ空间一定要用
+		oks.setSite(getString(R.string.app_name));
+		 // siteUrl是分享此内容的网站地址，QQ空间一定要用
+		oks.setSiteUrl("http://sharesdk.cn");
+		oks.setSilent(true);
+
+		// 去除注释可通过OneKeyShareCallback来捕获快捷分享的处理结果
+		// 通过OneKeyShareCallback来修改不同平台分享的内容
+		oks.setShareContentCustomizeCallback(new ShareContentCustomizeCallback() {
+
+			@Override
+			public void onShare(Platform platform, ShareParams paramsToShare) {
+				
+			}
+			
+		});
+		oks.setCallback(new PlatformActionListener() {
+			
+			@Override
+			public void onError(Platform arg0, int arg1, Throwable arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onComplete(Platform arg0, int arg1, HashMap<String, Object> arg2) {
+				
+			}
+			
+			@Override
+			public void onCancel(Platform arg0, int arg1) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		oks.show(getActivity());
+	}
+	
 	//弹出加载中对话框
 	private void popLoadingDialog(){
 		Context context = mContext;
@@ -483,7 +624,7 @@ public class LeftFragment extends Fragment implements Callback {
 		// 提交
 		edit.commit();
 	}
-
+	
 	// 登录后的操作
 	private void afterLogin(final String name, final String plat,
 			final String thirdId, final String iconUrl) {

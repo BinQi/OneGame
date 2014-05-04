@@ -275,8 +275,6 @@ public class DetailActivity extends Activity implements OnClickListener{
 		oks.setTitleUrl("http://sharesdk.cn");
 		// text是分享文本，所有平台都需要这个字段
 		oks.setText("OneGame推荐的这款游戏很好玩，特别推荐给您!游戏名:"+gamename+" :下载链接："+gameurl);
-//		  imagePath是图片的本地路径
-		 oks.setImagePath("/sdcard/mypic.png");
 
 //		 site是分享此内容的网站名称，QQ空间一定要用
 		oks.setSite(getString(R.string.app_name));
